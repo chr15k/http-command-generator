@@ -5,16 +5,22 @@ declare(strict_types=1);
 namespace Chr15k\HttpCliGenerator\Pipeline;
 
 use Closure;
-use InvalidArgumentException;
 use Throwable;
+use InvalidArgumentException;
+use Chr15k\HttpCliGenerator\Contracts\Pipe;
+use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
+use Chr15k\HttpCliGenerator\Exceptions\InvalidPipeException;
 
 final class Pipeline
 {
-    private $passable;
+    private RequestData $passable;
 
-    private ?array $pipes = null;
+    /**
+     * @var array<int, Pipe|Closure|string>
+     */
+    private array $pipes = [];
 
-    public static function send($passable): self
+    public static function send(RequestData $passable): self
     {
         $pipeline = new self;
 
@@ -43,12 +49,12 @@ final class Pipeline
 
     public function thenReturn()
     {
-        return $this->then(fn ($passable) => $passable);
+        return $this->then(fn (RequestData $passable): RequestData => $passable);
     }
 
     private function prepareDestination(Closure $destination)
     {
-        return function ($passable) use ($destination) {
+        return function (RequestData $passable) use ($destination) {
             try {
                 return $destination($passable);
             } catch (Throwable $e) {
@@ -59,20 +65,18 @@ final class Pipeline
 
     private function carry()
     {
-        return fn ($stack, $pipe): Closure => function ($passable) use ($stack, $pipe) {
+        return fn ($stack, $pipe): Closure => function (RequestData $passable) use ($stack, $pipe) {
             try {
-                if (is_callable($pipe)) {
+                if ($pipe instanceof Closure) {
                     return $pipe($passable, $stack);
                 }
-                if (is_object($pipe)) {
-                    return $pipe($passable, $stack);
-                }
-                if (is_string($pipe) && class_exists($pipe)) {
-                    $pipeInstance = new $pipe;
 
-                    return $pipeInstance($passable, $stack);
+                if (is_string($pipe) && class_exists($pipe) && is_subclass_of($pipe, Pipe::class)) {
+                    $instance = new $pipe;
+
+                    return $instance($passable, $stack);
                 }
-                throw new InvalidArgumentException('Invalid pipe type.');
+                throw new InvalidPipeException;
             } catch (Throwable $e) {
                 return $this->handleException($e);
             }

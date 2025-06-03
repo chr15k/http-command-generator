@@ -1,11 +1,13 @@
 <?php
 
-use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
-use Chr15k\HttpCliGenerator\Generators\CurlGenerator;
-use Chr15k\HttpCliGenerator\DataTransfer\RequestBodyData;
-use Chr15k\HttpCliGenerator\Enums\BodyType;
+declare(strict_types=1);
 
-test('curl generator no auth output', function (array $data) {
+use Chr15k\HttpCliGenerator\DataTransfer\RequestBodyData;
+use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
+use Chr15k\HttpCliGenerator\Enums\BodyType;
+use Chr15k\HttpCliGenerator\Generators\CurlGenerator;
+
+test('curl generator no auth output', function (array $data): void {
 
     $requestData = new RequestData(
         url: $data['url'],
