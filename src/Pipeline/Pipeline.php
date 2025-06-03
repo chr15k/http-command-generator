@@ -6,7 +6,6 @@ namespace Chr15k\HttpCliGenerator\Pipeline;
 
 use Closure;
 use Throwable;
-use InvalidArgumentException;
 use Chr15k\HttpCliGenerator\Contracts\Pipe;
 use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
 use Chr15k\HttpCliGenerator\Exceptions\InvalidPipeException;
