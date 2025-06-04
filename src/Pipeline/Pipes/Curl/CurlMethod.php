@@ -13,7 +13,6 @@ final class CurlMethod implements Pipe
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
         match ($data->method) {
-            'GET' => null,
             'HEAD' => $data->output .= ' --request --head',
             default => $data->output .= " --request {$data->method}",
         };
