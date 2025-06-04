@@ -41,7 +41,7 @@ test('curl generator no auth output', function (array $data): void {
             'headers' => ['Content-Type' => 'application/json'],
             'body' => ['{"key":"value"}'],
             'auth' => null,
-            'expected' => "curl --location --request POST 'https://example.com/api' -H \"Content-Type: application/json\" --data '{\"key\":\"value\"}'",
+            'expected' => "curl --location --request POST 'https://example.com/api' --header \"Content-Type: application/json\" --header \"Accept: application/json\" --data '{\"key\":\"value\"}'",
         ],
     ],
     // Add more test cases as needed

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Tests\Unit\Pipeline\FakePipes\FakePipeOne;
-use Tests\Unit\Pipeline\FakePipes\FakePipeTwo;
-use Chr15k\HttpCliGenerator\Pipeline\Pipeline;
 use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
 use Chr15k\HttpCliGenerator\Exceptions\InvalidPipeException;
+use Chr15k\HttpCliGenerator\Pipeline\Pipeline;
+use Tests\Unit\Pipeline\FakePipes\FakePipeOne;
+use Tests\Unit\Pipeline\FakePipes\FakePipeTwo;
 
 test('pipeline can be created', function (): void {
     $pipeline = new Pipeline;
@@ -43,6 +43,7 @@ test('pipeline can be processed through pipes with destination', function (): vo
         ->through([FakePipeOne::class])
         ->then(function (RequestData $data): RequestData {
             $data->output .= ' Destination!';
+
             return $data;
         });
 

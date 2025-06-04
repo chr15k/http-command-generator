@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCliGenerator\Pipeline;
 
-use Closure;
-use Throwable;
 use Chr15k\HttpCliGenerator\Contracts\Pipe;
 use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
 use Chr15k\HttpCliGenerator\Exceptions\InvalidPipeException;
+use Closure;
+use Throwable;
 
 final class Pipeline
 {
@@ -28,6 +28,9 @@ final class Pipeline
         return $pipeline;
     }
 
+    /**
+     * @param  array<int, Pipe|Closure|string>  $pipes
+     */
     public function through(array $pipes): self
     {
         $this->pipes = $pipes;
@@ -35,7 +38,7 @@ final class Pipeline
         return $this;
     }
 
-    public function then(Closure $destination)
+    public function then(Closure $destination): RequestData
     {
         $pipeline = array_reduce(
             array_reverse($this->pipes),
@@ -46,12 +49,12 @@ final class Pipeline
         return $pipeline($this->passable);
     }
 
-    public function thenReturn()
+    public function thenReturn(): RequestData
     {
         return $this->then(fn (RequestData $passable): RequestData => $passable);
     }
 
-    private function prepareDestination(Closure $destination)
+    private function prepareDestination(Closure $destination): Closure
     {
         return function (RequestData $passable) use ($destination) {
             try {
@@ -62,7 +65,7 @@ final class Pipeline
         };
     }
 
-    private function carry()
+    private function carry(): Closure
     {
         return fn ($stack, $pipe): Closure => function (RequestData $passable) use ($stack, $pipe) {
             try {

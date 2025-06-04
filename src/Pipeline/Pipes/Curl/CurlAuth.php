@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCliGenerator\Pipeline\Pipes\Curl;
 
-use Closure;
 use Chr15k\HttpCliGenerator\Contracts\Pipe;
-use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
-use Chr15k\HttpCliGenerator\DataTransfer\Auth\JWTData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\ApiKeyData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\BasicAuthData;
-use Chr15k\HttpCliGenerator\DataTransfer\Auth\DigestAuthData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\BearerTokenData;
+use Chr15k\HttpCliGenerator\DataTransfer\Auth\DigestAuthData;
+use Chr15k\HttpCliGenerator\DataTransfer\Auth\JWTData;
+use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
+use Closure;
 
 final readonly class CurlAuth implements Pipe
 {
-    public function __invoke(RequestData $data, Closure $next)
+    public function __invoke(RequestData $data, Closure $next): RequestData
     {
         match (true) {
             $data->auth instanceof BasicAuthData => $this->handleBasicAuth($data),
@@ -43,14 +43,14 @@ final readonly class CurlAuth implements Pipe
 
     private function handleBearerToken(RequestData &$data): void
     {
-        /** @var BearerTokenAuth $auth */
+        /** @var BearerTokenData $auth */
         $auth = $data->auth;
 
         if ($auth->token === '' || $auth->token === '0') {
             return;
         }
 
-        $data->output .= sprintf(' -H "Authorization: Bearer %s"', $auth->token);
+        $data->output .= sprintf(' --header "Authorization: Bearer %s"', $auth->token);
     }
 
     private function handleDigestAuth(RequestData &$data): void
@@ -76,11 +76,11 @@ final readonly class CurlAuth implements Pipe
 
         if ($auth->inQuery) {
             $separator = parse_url($data->url, PHP_URL_QUERY) ? '&' : '?';
-            $url = sprintf('%s%s%s=%s', $data->url, $separator, $auth->key, $auth->value ?? '');
+            $url = sprintf('%s%s%s=%s', $data->url, $separator, $auth->key, $auth->value);
             $data->output = str_replace($data->url, $url, $data->output);
         } else {
             $separator = $auth->value !== '' && $auth->value !== '0' ? ':' : ';';
-            $data->output .= sprintf(' --header "%s%s %s"', $auth->key, $separator, $auth->value ?? '');
+            $data->output .= sprintf(' --header "%s%s %s"', $auth->key, $separator, $auth->value);
         }
     }
 
@@ -98,7 +98,7 @@ final readonly class CurlAuth implements Pipe
             $url = sprintf('%s%s%s=%s', $data->url, $separator, $auth->queryKey, $auth->token);
             $data->output = str_replace($data->url, $url, $data->output);
         } else {
-            $data->output .= sprintf(' -H "Authorization: %s %s"', $auth->headerPrefix, $auth->token);
+            $data->output .= sprintf(' --header "Authorization: %s %s"', $auth->headerPrefix, $auth->token);
         }
     }
 }

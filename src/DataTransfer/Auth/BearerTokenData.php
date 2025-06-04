@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCliGenerator\DataTransfer\Auth;
 
-final class BearerTokenData
+use Chr15k\HttpCliGenerator\Contracts\AuthDataTransfer;
+
+final class BearerTokenData implements AuthDataTransfer
 {
     public function __construct(
         public string $token

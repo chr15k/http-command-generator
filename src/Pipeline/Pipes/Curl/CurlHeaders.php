@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCliGenerator\Pipeline\Pipes\Curl;
 
-use Closure;
 use Chr15k\HttpCliGenerator\Contracts\Pipe;
 use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
+use Closure;
 
 final readonly class CurlHeaders implements Pipe
 {
-    public function __invoke(RequestData $data, Closure $next)
+    public function __invoke(RequestData $data, Closure $next): RequestData
     {
         foreach ($data->headers as $key => $value) {
-            if (strtolower((string) $key) === 'Content-Type') {
+            if (strtolower((string) $key) === 'content-type') {
 
-                $data->output .= " -H \"{$key}: {$value}\"";
+                $data->output .= " --header \"{$key}: {$value}\"";
 
                 if (stripos($value, 'application/json') !== false) {
                     $data->output .= ' --header "Accept: application/json"';
                 }
             } else {
-                $data->output .= " -H \"{$key}: {$value}\"";
+                $data->output .= " --header \"{$key}: {$value}\"";
             }
 
         }
