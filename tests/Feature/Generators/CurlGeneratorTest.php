@@ -14,8 +14,8 @@ test('curl generator no auth output', function (array $data): void {
         method: $data['method'],
         headers: $data['headers'],
         body: new RequestBodyData(
-            type: BodyType::RAW_JSON,
-            data: $data['body']
+            type: $data['body']['type'] ?? BodyType::NONE,
+            data: (array) $data['body']['data'] ?? [],
         ),
         auth: $data['auth']
     );
@@ -29,9 +29,9 @@ test('curl generator no auth output', function (array $data): void {
             'url' => 'https://example.com',
             'method' => 'GET',
             'headers' => [],
-            'body' => [],
+            'body' => ['type' => BodyType::NONE, 'data' => []],
             'auth' => null,
-            'expected' => "curl --location 'https://example.com'",
+            'expected' => "curl --location --request GET 'https://example.com'",
         ],
     ],
     'curl post request with body' => [
@@ -39,10 +39,72 @@ test('curl generator no auth output', function (array $data): void {
             'url' => 'https://example.com/api',
             'method' => 'POST',
             'headers' => ['Content-Type' => 'application/json'],
-            'body' => ['{"key":"value"}'],
+            'body' => ['type' => BodyType::RAW_JSON, 'data' => '{"key":"value"}'],
             'auth' => null,
             'expected' => "curl --location --request POST 'https://example.com/api' --header \"Content-Type: application/json\" --header \"Accept: application/json\" --data '{\"key\":\"value\"}'",
         ],
     ],
-    // Add more test cases as needed
+    'curl post request with form data' => [
+        'data' => [
+            'url' => 'https://example.com/api',
+            'method' => 'POST',
+            'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
+            'body' => ['type' => BodyType::FORM, 'data' => ['key1' => 'value1', 'key2' => 'value2']],
+            'auth' => null,
+            'expected' => "curl --location --request POST 'https://example.com/api' --header \"Content-Type: application/x-www-form-urlencoded\" --data 'key1=value1&key2=value2'",
+        ],
+    ],
+    'curl put request with json body' => [
+        'data' => [
+            'url' => 'https://example.com/api',
+            'method' => 'PUT',
+            'headers' => ['Content-Type' => 'application/json'],
+            'body' => ['type' => BodyType::RAW_JSON, 'data' => '{"key":"value"}'],
+            'auth' => null,
+            'expected' => "curl --location --request PUT 'https://example.com/api' --header \"Content-Type: application/json\" --header \"Accept: application/json\" --data '{\"key\":\"value\"}'",
+        ],
+    ],
+    'curl delete request with no body' => [
+        'data' => [
+            'url' => 'https://example.com/api/resource/1',
+            'method' => 'DELETE',
+            'headers' => [],
+            'body' => ['type' => BodyType::NONE, 'data' => []],
+            'auth' => null,
+            'expected' => "curl --location --request DELETE 'https://example.com/api/resource/1'",
+        ],
+    ],
+    'curl patch request with json body' => [
+        'data' => [
+            'url' => 'https://example.com/api/resource/1',
+            'method' => 'PATCH',
+            'headers' => ['Content-Type' => 'application/json'],
+            'body' => ['type' => BodyType::RAW_JSON, 'data' => '{"key":"value"}'],
+            'auth' => null,
+            'expected' => "curl --location --request PATCH 'https://example.com/api/resource/1' --header \"Content-Type: application/json\" --header \"Accept: application/json\" --data '{\"key\":\"value\"}'",
+        ],
+    ],
+    'curl request with custom headers' => [
+        'data' => [
+            'url' => 'https://example.com/api',
+            'method' => 'GET',
+            'headers' => ['X-Custom-Header' => 'CustomValue'],
+            'body' => ['type' => BodyType::NONE, 'data' => []],
+            'auth' => null,
+            'expected' => "curl --location --request GET 'https://example.com/api' --header \"X-Custom-Header: CustomValue\"",
+        ],
+    ],
+    'curl request with multiple headers' => [
+        'data' => [
+            'url' => 'https://example.com/api',
+            'method' => 'GET',
+            'headers' => [
+                'X-Custom-Header' => 'CustomValue',
+                'Accept' => 'application/json',
+            ],
+            'body' => ['type' => BodyType::NONE, 'data' => []],
+            'auth' => null,
+            'expected' => "curl --location --request GET 'https://example.com/api' --header \"X-Custom-Header: CustomValue\" --header \"Accept: application/json\"",
+        ],
+    ],
 ]);

@@ -18,12 +18,9 @@ final readonly class CurlBody implements Pipe
             return $next($data);
         }
 
-        if ($data->body->type === BodyType::RAW_JSON) {
+        $jsonBody = $data->body->getContent();
 
-            $jsonBody = $data->body->getContent();
-
-            $data->output .= " --data '$jsonBody'";
-        }
+        $data->output .= " --data '$jsonBody'";
 
         return $next($data);
     }

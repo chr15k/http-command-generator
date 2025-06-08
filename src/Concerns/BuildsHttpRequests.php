@@ -19,6 +19,9 @@ trait BuildsHttpRequests
 
     private string $method = 'GET';
 
+    /**
+     * @var array<string, string>
+     */
     private array $headers = [];
 
     private ?AuthDataTransfer $auth = null;
@@ -72,6 +75,9 @@ trait BuildsHttpRequests
         return $this;
     }
 
+    /**
+     * @param  array<string, string>  $headers
+     */
     public function headers(array $headers): self
     {
         $this->headers = array_merge($this->headers, $headers);
@@ -86,6 +92,9 @@ trait BuildsHttpRequests
         return $this;
     }
 
+    /**
+     * @param  array<string, string>|string  $data
+     */
     public function withJsonBody(array|string $data): self
     {
         $this->body = new RequestBodyData(type: BodyType::RAW_JSON, data: (array) $data);
@@ -95,6 +104,9 @@ trait BuildsHttpRequests
         return $this;
     }
 
+    /**
+     * @param  array<string, string>  $data
+     */
     public function withFormBody(array $data): self
     {
         $this->body = new RequestBodyData(type: BodyType::FORM_URLENCODED, data: $data);
@@ -104,6 +116,9 @@ trait BuildsHttpRequests
         return $this;
     }
 
+    /**
+     * @param  array<string, string>  $data
+     */
     public function withMultipartBody(array $data): self
     {
         $this->body = new RequestBodyData(type: BodyType::FORM, data: $data);
