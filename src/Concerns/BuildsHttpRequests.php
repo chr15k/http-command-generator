@@ -19,9 +19,7 @@ trait BuildsHttpRequests
 
     private string $method = 'GET';
 
-    /**
-     * @var array<string, string>
-     */
+    /** @var array<string, string> */
     private array $headers = [];
 
     private ?AuthDataTransfer $auth = null;

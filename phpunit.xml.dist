@@ -7,6 +7,9 @@
         <include>
             <directory suffix=".php">./src</directory>
         </include>
+        <exclude>
+            <directory suffix=".php">./src/DataTransfer</directory>
+        </exclude>
     </source>
     <testsuites>
         <testsuite name="default">
