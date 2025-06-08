@@ -38,7 +38,9 @@ final readonly class CurlAuth implements Pipe
             return;
         }
 
-        $data->output .= sprintf(' -u "%s:%s"', $auth->username, $auth->password ?? '');
+        $encoded = base64_encode(sprintf('%s:%s', $auth->username, $auth->password ?? ''));
+
+        $data->output .= sprintf(" --header 'Authorization: Basic %s'", $encoded);
     }
 
     private function handleBearerToken(RequestData &$data): void
@@ -50,7 +52,7 @@ final readonly class CurlAuth implements Pipe
             return;
         }
 
-        $data->output .= sprintf(' --header "Authorization: Bearer %s"', $auth->token);
+        $data->output .= sprintf(" --header 'Authorization: Bearer %s'", $auth->token);
     }
 
     private function handleDigestAuth(RequestData &$data): void
@@ -62,7 +64,7 @@ final readonly class CurlAuth implements Pipe
             return;
         }
 
-        $data->output .= sprintf(' --digest -u "%s:%s"', $auth->username, $auth->password ?? '');
+        $data->output .= sprintf(" --digest --user '%s:%s'", $auth->username, $auth->password ?? '');
     }
 
     private function handleApiKeyAuth(RequestData &$data): void
@@ -80,7 +82,7 @@ final readonly class CurlAuth implements Pipe
             $data->output = str_replace($data->url, $url, $data->output);
         } else {
             $separator = $auth->value !== '' && $auth->value !== '0' ? ':' : ';';
-            $data->output .= sprintf(' --header "%s%s %s"', $auth->key, $separator, $auth->value);
+            $data->output .= sprintf(" --header '%s%s %s'", $auth->key, $separator, $auth->value);
         }
     }
 
@@ -98,7 +100,7 @@ final readonly class CurlAuth implements Pipe
             $url = sprintf('%s%s%s=%s', $data->url, $separator, $auth->queryKey, $auth->token);
             $data->output = str_replace($data->url, $url, $data->output);
         } else {
-            $data->output .= sprintf(' --header "Authorization: %s %s"', $auth->headerPrefix, $auth->token);
+            $data->output .= sprintf(" --header 'Authorization: %s %s'", $auth->headerPrefix, $auth->token);
         }
     }
 }
