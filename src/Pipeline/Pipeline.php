@@ -87,6 +87,9 @@ final class Pipeline
 
     private function handleException(Throwable $e): never
     {
-        throw $e;
+        throw new InvalidPipeException(
+            message: 'An error occurred while processing the pipeline: '.$e->getMessage(),
+            previous: $e
+        );
     }
 }

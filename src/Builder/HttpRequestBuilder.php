@@ -60,11 +60,11 @@ final class HttpRequestBuilder
     /**
      * Get available generator types
      *
-     * @return array<string>
+     * @return array<string, Generator>
      */
     public function availableGenerators(): array
     {
-        return array_keys($this->generators);
+        return $this->generators;
     }
 
     /**

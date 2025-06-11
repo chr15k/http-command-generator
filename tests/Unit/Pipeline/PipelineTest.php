@@ -50,9 +50,29 @@ test('pipeline can be processed through pipes with destination', function (): vo
     expect($pipeline->output)->toBe('Fake 1! Destination!');
 });
 
+test('pipeline can be processed with closure pipes', function (): void {
+    $data = new RequestData;
+    $data->output = 'Closure Pipe!';
+
+    $pipeline = Pipeline::send($data)
+        ->through([
+            fn (RequestData $data, Closure $next) => $next($data),
+        ])
+        ->thenReturn();
+
+    expect($pipeline->output)->toBe('Closure Pipe!');
+});
+
 test('pipeline throws exception for invalid pipe', function (): void {
     $data = new RequestData;
     Pipeline::send($data)
         ->through(['InvalidPipe'])
         ->thenReturn();
+})->throws(InvalidPipeException::class);
+
+test('pipeline throws InvalidPipeException for exception thrown via destination closure', function (): void {
+    $data = new RequestData;
+    Pipeline::send($data)
+        ->through([FakePipeOne::class])
+        ->then(fn () => throw new Exception('Invalid destination closure'));
 })->throws(InvalidPipeException::class);

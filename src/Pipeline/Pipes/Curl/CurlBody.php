@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCliGenerator\Pipeline\Pipes\Curl;
 
-use Chr15k\HttpCliGenerator\Contracts\BodyDataTransfer;
 use Chr15k\HttpCliGenerator\Contracts\Pipe;
 use Chr15k\HttpCliGenerator\DataTransfer\Body\FormUrlEncodedData;
 use Chr15k\HttpCliGenerator\DataTransfer\Body\JsonBodyData;
@@ -16,10 +15,6 @@ final readonly class CurlBody implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        if (! $data->body instanceof BodyDataTransfer) {
-            return $next($data);
-        }
-
         match (true) {
             $data->body instanceof JsonBodyData => $this->handleJsonBody($data),
             $data->body instanceof FormUrlEncodedData => $this->handleFormUrlEncodedBody($data),
@@ -41,13 +36,9 @@ final readonly class CurlBody implements Pipe
     {
         $formData = $data->body?->getContent() ?? '';
 
-        if ($formData === '') {
-            return;
-        }
-
         $decoded = json_decode($formData, true);
 
-        if (! is_array($decoded)) {
+        if (! is_array($decoded) || $decoded === []) {
             return;
         }
 
@@ -60,13 +51,9 @@ final readonly class CurlBody implements Pipe
     {
         $formData = $data->body?->getContent() ?? '';
 
-        if ($formData === '') {
-            return;
-        }
-
         $decoded = json_decode($formData, true);
 
-        if (! is_array($decoded)) {
+        if (! is_array($decoded) || $decoded === []) {
             return;
         }
 

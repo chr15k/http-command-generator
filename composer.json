@@ -50,7 +50,7 @@
         "test:refactor": "rector --dry-run",
         "test:lint": "pint --test",
         "test:types": "phpstan analyse --ansi",
-        "test:unit": "pest --colors=always --coverage --min=90.0",
+        "test:unit": "pest --colors=always --coverage --exactly=100.0",
         "test": [
             "@test:refactor",
             "@test:lint",
