@@ -52,8 +52,7 @@ final readonly class CurlBody implements Pipe
         }
 
         foreach ($decoded as $key => $value) {
-            $escapedValue = escapeshellarg((string) $value);
-            $data->output .= " --data-urlencode '$key=$escapedValue'";
+            $data->output .= " --data-urlencode '$key=$value'";
         }
     }
 
@@ -72,8 +71,7 @@ final readonly class CurlBody implements Pipe
         }
 
         foreach ($decoded as $key => $value) {
-            $escapedValue = escapeshellarg((string) $value);
-            $data->output .= " --form '$key=$escapedValue'";
+            $data->output .= " --form '$key=$value'";
         }
     }
 }

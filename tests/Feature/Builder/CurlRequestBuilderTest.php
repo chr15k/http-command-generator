@@ -88,6 +88,31 @@ test('curl request builder generates curl command with custom headers and body',
     expect($output)->toBe("curl --location --request POST 'https://example.com/api' --header \"Content-Type: application/json\" --data '{\"key\":\"value\"}'");
 });
 
+test('curl request builder generates curl command with form data', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('POST')
+        ->withFormBody(['key1' => 'value1', 'key2' => 'value2']);
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request POST 'https://example.com/api' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'key1=value1' --data-urlencode 'key2=value2'");
+});
+
+test('curl request builder generates curl command with multipart form data', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('POST')
+        ->withMultipartBody(['image' => '@path/to/file', 'key' => 'value']);
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request POST 'https://example.com/api' --form 'image=@path/to/file' --form 'key=value'");
+});
+
+
 test('curl request builder generates curl command with query parameters', function (): void {
 
     $builder = $this->builder

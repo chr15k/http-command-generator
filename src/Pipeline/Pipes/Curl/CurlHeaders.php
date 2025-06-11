@@ -21,7 +21,7 @@ final readonly class CurlHeaders implements Pipe
             && str_contains(strtolower($data->output), 'content-type:') === false
         ) {
             $value = $data->body->getContentTypeHeader();
-            $data->output .= $value !== '' && $value !== '0' ? " --header \"Content-Type: {$value}\"" : '';
+            $data->output .= $value !== '' && $value !== '0' ? " --header 'Content-Type: {$value}'" : '';
         }
 
         return $next($data);

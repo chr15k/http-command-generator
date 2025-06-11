@@ -28,7 +28,7 @@ final readonly class MultiPartFormData implements BodyDataTransfer
 
     public function getContentTypeHeader(): string
     {
-        return 'multipart/form-data';
+        return '';
     }
 
     public function hasContent(): bool

@@ -105,8 +105,6 @@ trait BuildsHttpRequests
     {
         $this->body = $body;
 
-        $this->header('Content-Type', $body->getContentTypeHeader());
-
         return $this;
     }
 
