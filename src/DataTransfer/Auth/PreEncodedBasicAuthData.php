@@ -6,11 +6,10 @@ namespace Chr15k\HttpCliGenerator\DataTransfer\Auth;
 
 use Chr15k\HttpCliGenerator\Contracts\AuthDataTransfer;
 
-final readonly class BasicAuthData implements AuthDataTransfer
+final readonly class PreEncodedBasicAuthData implements AuthDataTransfer
 {
     public function __construct(
-        public string $username,
-        public string $password
+        public string $credentials,
     ) {
         //
     }

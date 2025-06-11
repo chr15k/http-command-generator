@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chr15k\HttpCliGenerator\DataTransfer;
 
 use Chr15k\HttpCliGenerator\Contracts\AuthDataTransfer;
+use Chr15k\HttpCliGenerator\Contracts\BodyDataTransfer;
 
 final class RequestData
 {
@@ -17,7 +18,7 @@ final class RequestData
         public string $url = '',
         public array $headers = [],
         public array $parameters = [],
-        public ?RequestBodyData $body = null,
+        public ?BodyDataTransfer $body = null,
         public ?AuthDataTransfer $auth = null,
         public string $output = '',
     ) {
