@@ -32,14 +32,14 @@ final readonly class CurlBody implements Pipe
 
     private function handleJsonBody(RequestData &$data): void
     {
-        $jsonBody = $data->body->getContent();
+        $jsonBody = $data->body?->getContent() ?? '';
 
         $data->output .= " --data '$jsonBody'";
     }
 
     private function handleFormUrlEncodedBody(RequestData &$data): void
     {
-        $formData = $data->body->getContent();
+        $formData = $data->body?->getContent() ?? '';
 
         if ($formData === '') {
             return;
@@ -58,7 +58,7 @@ final readonly class CurlBody implements Pipe
 
     private function handleMultiPartFormData(RequestData &$data): void
     {
-        $formData = $data->body->getContent();
+        $formData = $data->body?->getContent() ?? '';
 
         if ($formData === '') {
             return;

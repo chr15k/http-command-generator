@@ -109,7 +109,7 @@ trait BuildsHttpRequests
     }
 
     /**
-     * @param  array<string, string>|string  $data
+     * @param  array<string, string>  $data
      */
     public function withJsonBody(array $data): self
     {

@@ -6,7 +6,7 @@ namespace Chr15k\HttpCliGenerator\DataTransfer\Body;
 
 use Chr15k\HttpCliGenerator\Contracts\BodyDataTransfer;
 
-final readonly class MultiPartFormData implements BodyDataTransfer
+final readonly class MultipartFormData implements BodyDataTransfer
 {
     /**
      * @param  array<string, string|resource>  $data
@@ -16,23 +16,15 @@ final readonly class MultiPartFormData implements BodyDataTransfer
         //
     }
 
-    public static function fromData(array $data): self
-    {
-        return new self($data);
-    }
-
     public function getContent(): string
     {
-        return json_encode($this->data);
+        $data = json_encode($this->data);
+
+        return is_string($data) ? $data : '';
     }
 
     public function getContentTypeHeader(): string
     {
         return '';
-    }
-
-    public function hasContent(): bool
-    {
-        return $this->data === [];
     }
 }

@@ -10,6 +10,9 @@ final class JsonBodyData implements BodyDataTransfer
 {
     private string $rawJson = '';
 
+    /**
+     * @param  array<string, mixed>|string  $data
+     */
     public function __construct(
         private readonly array|string $data = '',
         bool $preserveAsRaw = false,
@@ -20,23 +23,13 @@ final class JsonBodyData implements BodyDataTransfer
         }
     }
 
-    public static function fromRawJson(string $json): self
-    {
-        return new self($json, true);
-    }
-
-    public static function fromData(array $data): self
-    {
-        return new self($data);
-    }
-
     public function getContent(): string
     {
         if ($this->rawJson !== '') {
             return $this->rawJson;
         }
 
-        if ($this->data === null) {
+        if ($this->data === [] || $this->data === '') {
             return '';
         }
 
@@ -49,10 +42,5 @@ final class JsonBodyData implements BodyDataTransfer
     public function getContentTypeHeader(): string
     {
         return 'application/json';
-    }
-
-    public function hasContent(): bool
-    {
-        return $this->data !== null || $this->rawJson !== '';
     }
 }
