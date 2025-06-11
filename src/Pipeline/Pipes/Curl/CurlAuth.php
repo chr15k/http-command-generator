@@ -127,7 +127,7 @@ final readonly class CurlAuth implements Pipe
             $url = sprintf('%s%s%s=%s', $data->url, $separator, $auth->queryKey, $auth->token);
             $data->output = str_replace($data->url, $url, $data->output);
         } else {
-            $data->output .= sprintf(" --header 'Authorization: %s %s'", $auth->headerPrefix, $auth->token);
+            $data->output .= str_replace('  ', ' ', sprintf(" --header 'Authorization: %s %s'", $auth->headerPrefix, $auth->token));
         }
     }
 }

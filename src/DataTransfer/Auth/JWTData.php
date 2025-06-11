@@ -12,7 +12,7 @@ final class JWTData implements AuthDataTransfer
         public string $token,
         public bool $inQuery = false,
         public string $queryKey = 'token',
-        public string $headerPrefix = ''
+        public string $headerPrefix = 'Bearer'
     ) {
         //
     }

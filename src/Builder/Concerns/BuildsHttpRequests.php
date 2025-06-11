@@ -113,12 +113,12 @@ trait BuildsHttpRequests
      */
     public function withJsonBody(array $data): self
     {
-        return $this->body(JsonBodyData::fromData($data));
+        return $this->body(new JsonBodyData(data: $data));
     }
 
     public function withRawJsonBody(string $json): self
     {
-        return $this->body(JsonBodyData::fromRawJson($json));
+        return $this->body(new JsonBodyData(data: $json, preserveAsRaw: true));
     }
 
     /**
@@ -126,7 +126,7 @@ trait BuildsHttpRequests
      */
     public function withFormBody(array $data): self
     {
-        return $this->body(FormUrlEncodedData::fromData($data));
+        return $this->body(new FormUrlEncodedData(data: $data));
     }
 
     /**
@@ -134,14 +134,14 @@ trait BuildsHttpRequests
      */
     public function withMultipartBody(array $data): self
     {
-        return $this->body(MultipartFormData::fromData($data));
+        return $this->body(new MultipartFormData(data: $data));
     }
 
-    public function withJWTAuth(
+    public function withPreEncodedJWTAuth(
         string $token,
         bool $inQuery = false,
         string $queryKey = 'token',
-        string $headerPrefix = ''
+        string $headerPrefix = 'Bearer'
     ): self {
         return $this->auth(new JWTData(
             token: $token,

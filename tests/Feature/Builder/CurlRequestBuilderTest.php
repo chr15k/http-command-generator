@@ -8,6 +8,10 @@ beforeEach(function (): void {
     $this->builder = HttpRequestBuilder::create();
 });
 
+//======================================================================
+// General Tests
+//======================================================================
+
 test('curl request builder create method returns instance', function (): void {
     expect($this->builder)->toBeInstanceOf(HttpRequestBuilder::class);
 });
@@ -110,6 +114,10 @@ test('curl request builder generates curl command with custom method', function 
     expect($output)->toBe("curl --location --request PATCH 'https://example.com/api'");
 });
 
+//======================================================================
+// BASIC AUTH Tests
+//======================================================================
+
 test('curl request builder generates curl command with basic auth', function (): void {
 
     $builder = $this->builder
@@ -144,4 +152,116 @@ test('curl request builder generates curl command with pre encoded basic auth', 
     $output = $builder->toCurl();
 
     expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header 'Authorization: Basic T01HIGkgY2Fubm90IGJlbGlldmUgeW91IGRlY29kZWQgbWUh'");
+});
+
+//======================================================================
+// BEARER TOKEN Tests
+//======================================================================
+
+test('curl request builder generates curl command with bearer token', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('GET')
+        ->withBearerToken('your_token_here');
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header 'Authorization: Bearer your_token_here'");
+});
+
+//======================================================================
+// DIGEST AUTH Tests
+//======================================================================
+
+test('curl request builder generates curl command with digest auth', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('GET')
+        ->withDigestAuth('username', 'password');
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --digest --user 'username:password'");
+});
+
+//======================================================================
+// API TOKEN Tests
+//======================================================================
+
+test('curl request builder generates curl command with API key in query', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('GET')
+        ->withApiKey('token', 'value', true);
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api?token=value'");
+});
+
+test('curl request builder generates curl command with API key in header', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('GET')
+        ->withApiKey('X-API-Key', 'your_api_key');
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header 'X-API-Key: your_api_key'");
+});
+
+//======================================================================
+// JWT Tests
+//======================================================================
+
+test('curl request builder generates curl command with JWT in query', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('GET')
+        ->withPreEncodedJWTAuth('your_jwt_token', true);
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api?token=your_jwt_token'");
+});
+
+test('curl request builder generates curl command with JWT in header', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('GET')
+        ->withPreEncodedJWTAuth('your_jwt_token');
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header 'Authorization: Bearer your_jwt_token'");
+});
+
+test('curl request builder generates curl command with JWT in header with custom prefix', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('GET')
+        ->withPreEncodedJWTAuth('your_jwt_token', false, 'token');
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header 'Authorization: Bearer your_jwt_token'");
+});
+
+test('curl request builder generates curl command with JWT in header with custom prefix and query key', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('GET')
+        ->withPreEncodedJWTAuth('your_jwt_token', false, 'token', 'CustomPrefix');
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header 'Authorization: CustomPrefix your_jwt_token'");
 });
