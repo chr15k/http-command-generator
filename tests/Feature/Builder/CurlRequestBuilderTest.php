@@ -51,30 +51,6 @@ test('curl request builder generates curl command with headers', function (): vo
     expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header \"Authorization: Bearer token\" --header \"Accept: application/json\"");
 });
 
-test('curl request builder generates curl command with basic auth', function (): void {
-
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->method('GET')
-        ->withBasicAuth('username', 'password');
-
-    $output = $builder->toCurl();
-
-    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header 'Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ='");
-});
-
-test('curl request builder generates curl command with raw basic auth', function (): void {
-
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->method('GET')
-        ->withRawBasicAuth('username', 'password');
-
-    $output = $builder->toCurl();
-
-    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --user 'username:password'");
-});
-
 test('curl request builder generates curl command with custom headers and body', function (): void {
 
     $builder = $this->builder
@@ -112,7 +88,6 @@ test('curl request builder generates curl command with multipart form data', fun
     expect($output)->toBe("curl --location --request POST 'https://example.com/api' --form 'image=@path/to/file' --form 'key=value'");
 });
 
-
 test('curl request builder generates curl command with query parameters', function (): void {
 
     $builder = $this->builder
@@ -133,4 +108,40 @@ test('curl request builder generates curl command with custom method', function 
     $output = $builder->toCurl();
 
     expect($output)->toBe("curl --location --request PATCH 'https://example.com/api'");
+});
+
+test('curl request builder generates curl command with basic auth', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('GET')
+        ->withBasicAuth('username', 'password');
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header 'Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ='");
+});
+
+test('curl request builder generates curl command with raw basic auth', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('GET')
+        ->withRawBasicAuth('username', 'password');
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --user 'username:password'");
+});
+
+test('curl request builder generates curl command with pre encoded basic auth', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->method('GET')
+        ->withPreEncodedBasicAuth('T01HIGkgY2Fubm90IGJlbGlldmUgeW91IGRlY29kZWQgbWUh');
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header 'Authorization: Basic T01HIGkgY2Fubm90IGJlbGlldmUgeW91IGRlY29kZWQgbWUh'");
 });
