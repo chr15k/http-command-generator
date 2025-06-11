@@ -16,6 +16,11 @@ final readonly class MultiPartFormData implements BodyDataTransfer
         //
     }
 
+    public static function fromData(array $data): self
+    {
+        return new self($data);
+    }
+
     public function getContent(): string
     {
         return json_encode($this->data);
@@ -24,11 +29,6 @@ final readonly class MultiPartFormData implements BodyDataTransfer
     public function getContentTypeHeader(): string
     {
         return 'multipart/form-data';
-    }
-
-    public static function fromData(array $data): self
-    {
-        return new self($data);
     }
 
     public function hasContent(): bool

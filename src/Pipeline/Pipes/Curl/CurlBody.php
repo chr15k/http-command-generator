@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCliGenerator\Pipeline\Pipes\Curl;
 
-use Closure;
-use Chr15k\HttpCliGenerator\Contracts\Pipe;
-use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
 use Chr15k\HttpCliGenerator\Contracts\BodyDataTransfer;
+use Chr15k\HttpCliGenerator\Contracts\Pipe;
+use Chr15k\HttpCliGenerator\DataTransfer\Body\FormUrlEncodedData;
 use Chr15k\HttpCliGenerator\DataTransfer\Body\JsonBodyData;
 use Chr15k\HttpCliGenerator\DataTransfer\Body\MultipartFormData;
-use Chr15k\HttpCliGenerator\DataTransfer\Body\FormUrlEncodedData;
+use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
+use Closure;
 
 final readonly class CurlBody implements Pipe
 {

@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCliGenerator\Builder\Concerns;
 
-use Chr15k\HttpCliGenerator\DataTransfer\Auth\JWTData;
 use Chr15k\HttpCliGenerator\Contracts\AuthDataTransfer;
 use Chr15k\HttpCliGenerator\Contracts\BodyDataTransfer;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\ApiKeyData;
-use Chr15k\HttpCliGenerator\DataTransfer\Body\JsonBodyData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\BasicAuthData;
-use Chr15k\HttpCliGenerator\DataTransfer\Auth\DigestAuthData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\BearerTokenData;
-use Chr15k\HttpCliGenerator\DataTransfer\Auth\RawBasicAuthData;
-use Chr15k\HttpCliGenerator\DataTransfer\Body\MultipartFormData;
-use Chr15k\HttpCliGenerator\DataTransfer\Body\FormUrlEncodedData;
+use Chr15k\HttpCliGenerator\DataTransfer\Auth\DigestAuthData;
+use Chr15k\HttpCliGenerator\DataTransfer\Auth\JWTData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\PreEncodedBasicAuthData;
+use Chr15k\HttpCliGenerator\DataTransfer\Auth\RawBasicAuthData;
+use Chr15k\HttpCliGenerator\DataTransfer\Body\FormUrlEncodedData;
+use Chr15k\HttpCliGenerator\DataTransfer\Body\JsonBodyData;
+use Chr15k\HttpCliGenerator\DataTransfer\Body\MultipartFormData;
 
 trait BuildsHttpRequests
 {

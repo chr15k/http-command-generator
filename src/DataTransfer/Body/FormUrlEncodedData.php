@@ -16,6 +16,11 @@ final readonly class FormUrlEncodedData implements BodyDataTransfer
         //
     }
 
+    public static function fromData(array $data): self
+    {
+        return new self($data);
+    }
+
     public function getContent(): string
     {
         return json_encode($this->data);
@@ -24,11 +29,6 @@ final readonly class FormUrlEncodedData implements BodyDataTransfer
     public function getContentTypeHeader(): string
     {
         return 'application/x-www-form-urlencoded';
-    }
-
-    public static function fromData(array $data): self
-    {
-        return new self($data);
     }
 
     public function hasContent(): bool
