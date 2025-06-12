@@ -10,10 +10,10 @@ use Chr15k\HttpCliGenerator\DataTransfer\Auth\BasicAuthData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\BearerTokenData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\DigestAuthData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\JWTData;
-use Chr15k\HttpCliGenerator\DataTransfer\Auth\PreEncodedBasicAuthData;
-use Chr15k\HttpCliGenerator\DataTransfer\Auth\RawBasicAuthData;
+use Chr15k\HttpCliGenerator\DataTransfer\Auth\PreEncodedJWTData;
 use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
 use Closure;
+use Firebase\JWT\JWT;
 
 final readonly class CurlAuth implements Pipe
 {
@@ -21,8 +21,6 @@ final readonly class CurlAuth implements Pipe
     {
         match (true) {
             $data->auth instanceof BasicAuthData => $this->handleBasicAuth($data),
-            $data->auth instanceof RawBasicAuthData => $this->handleRawBasicAuth($data),
-            $data->auth instanceof PreEncodedBasicAuthData => $this->handlePreEncodedBasicAuth($data),
             $data->auth instanceof BearerTokenData => $this->handleBearerToken($data),
             $data->auth instanceof DigestAuthData => $this->handleDigestAuth($data),
             $data->auth instanceof ApiKeyData => $this->handleApiKeyAuth($data),
@@ -42,32 +40,12 @@ final readonly class CurlAuth implements Pipe
             return;
         }
 
-        $encoded = base64_encode(sprintf('%s:%s', $auth->username, $auth->password ?? ''));
-        $data->output .= sprintf(" --header 'Authorization: Basic %s'", $encoded);
-    }
-
-    private function handleRawBasicAuth(RequestData &$data): void
-    {
-        /** @var RawBasicAuthData $auth */
-        $auth = $data->auth;
-
-        if ($auth->username === '' || $auth->username === '0') {
-            return;
+        if ($auth->preEncode) {
+            $encoded = base64_encode(sprintf('%s:%s', $auth->username, $auth->password ?? ''));
+            $data->output .= sprintf(" --header 'Authorization: Basic %s'", $encoded);
+        } else {
+            $data->output .= " --user '".$auth->username.':'.($auth->password ?? '')."'";
         }
-
-        $data->output .= " --user '".$auth->username.':'.($auth->password ?? '')."'";
-    }
-
-    private function handlePreEncodedBasicAuth(RequestData &$data): void
-    {
-        /** @var PreEncodedBasicAuthData $auth */
-        $auth = $data->auth;
-
-        if ($auth->credentials === '') {
-            return;
-        }
-
-        $data->output .= sprintf(" --header 'Authorization: Basic %s'", $auth->credentials);
     }
 
     private function handleBearerToken(RequestData &$data): void
@@ -118,16 +96,24 @@ final readonly class CurlAuth implements Pipe
         /** @var JWTData $auth */
         $auth = $data->auth;
 
-        if ($auth->token === '') {
+        if ($auth->key === '') {
             return;
         }
 
+        $token = JWT::encode(
+            $auth->payload,
+            $auth->secretBase64Encoded ? base64_decode($auth->key) : $auth->key,
+            $auth->algorithm->value,
+            null,
+            $auth->headers
+        );
+
         if ($auth->inQuery) {
             $separator = parse_url($data->url, PHP_URL_QUERY) ? '&' : '?';
-            $url = sprintf('%s%s%s=%s', $data->url, $separator, $auth->queryKey, $auth->token);
+            $url = sprintf('%s%s%s=%s', $data->url, $separator, $auth->queryKey, $token);
             $data->output = str_replace($data->url, $url, $data->output);
         } else {
-            $data->output .= str_replace('  ', ' ', sprintf(" --header 'Authorization: %s %s'", $auth->headerPrefix, $auth->token));
+            $data->output .= str_replace('  ', ' ', sprintf(" --header 'Authorization: %s %s'", $auth->headerPrefix, $token));
         }
     }
 }

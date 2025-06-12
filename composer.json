@@ -1,6 +1,6 @@
 {
     "name": "chr15k/http-cli-generator",
-    "description": "Generate HTTP CLI commands from request data",
+    "description": "Generate HTTP CLI commands",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -10,14 +10,16 @@
         }
     ],
     "keywords": [
-        "laravel",
         "http",
         "cli",
         "php",
-        "generator"
+        "generator",
+        "api",
+        "curl"
     ],
     "require": {
-        "php": "^8.2"
+        "php": "^8.2",
+        "firebase/php-jwt": "^6.11"
     },
     "require-dev": {
         "laravel/pint": "^1.20.0",
