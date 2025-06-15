@@ -1,0 +1,52 @@
+# API Cheat Sheet
+
+Quick reference guide for the HTTP CLI Generator library.
+
+## Builder Methods
+
+### Core Methods
+
+| Method | Description | Example |
+|--------|-------------|---------|
+| `create()` | Create a new builder instance | `HttpRequestBuilder::create()` |
+| `url(string $url)` | Set the URL | `->url('https://api.example.com')` |
+| `method(string $method)` | Set HTTP method | `->method('PATCH')` |
+| `get()` | Set method to GET | `->get()` |
+| `post()` | Set method to POST | `->post()` |
+| `put()` | Set method to PUT | `->put()` |
+| `delete()` | Set method to DELETE | `->delete()` |
+| `toCurl()` | Generate cURL command | `->toCurl()` |
+| `to(string $generator)` | Use specific generator | `->to('curl')` |
+| `availableGenerators()` | List available generators | `$builder->availableGenerators()` |
+| `registerGenerator(string $name, Generator $generator)` | Register custom generator | `->registerGenerator('httpie', new HttpieGenerator())` |
+
+### Headers
+
+| Method | Description | Example |
+|--------|-------------|---------|
+| `header(string $name, string $value)` | Add single header | `->header('Accept', 'application/json')` |
+| `headers(array $headers)` | Add multiple headers | `->headers(['Accept' => 'application/json', 'User-Agent' => 'MyApp/1.0'])` |
+
+### Authentication
+
+| Method | Description | Example |
+|--------|-------------|---------|
+| `auth(AuthDataTransfer $auth)` | Set auth with DTO | `->auth(new BasicAuthData('user', 'pass'))` |
+| `withApiKey(string $key, string $value, bool $inQuery = false)` | Add API key auth | `->withApiKey('X-API-Key', 'key123')` |
+| `withBasicAuth(string $username, string $password)` | Add Basic auth | `->withBasicAuth('user', 'pass')` |
+| `withDigestAuth(string $username, string $password)` | Add Digest auth | `->withDigestAuth('user', 'pass')` |
+| `withBearerToken(string $token)` | Add Bearer token | `->withBearerToken('token123')` |
+| `withJWTAuth(string $key, array $payload = [], array $headers = [], Algorithm $algorithm = Algorithm::HS256, bool $secretBase64Encoded = false, string $headerPrefix = 'Bearer', bool $inQuery = false, string $queryKey = 'token')` | Add JWT auth | `->withJWTAuth('secret', ['user_id' => 123])` |
+
+### Request Body
+
+| Method | Description | Example |
+|--------|-------------|---------|
+| `body(BodyDataTransfer $body)` | Set body with DTO | `->body(new JsonBodyData(['name' => 'John']))` |
+| `withJsonBody(array $data)` | Add JSON body | `->withJsonBody(['name' => 'John', 'age' => 30])` |
+| `withRawJsonBody(string $json)` | Add raw JSON body | `->withRawJsonBody('{"name":"John"}')` |
+| `withFormBody(array $data)` | Add form-urlencoded body | `->withFormBody(['name' => 'John', 'age' => 30])` |
+| `withMultipartBody(array $data)` | Add multipart form data | `->withMultipartBody(['file' => '@path/to/file'])` |
+| `withBinaryBody(string $filePath)` | Add binary file content | `->withBinaryBody('/path/to/file.bin')` |
+
+

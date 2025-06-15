@@ -6,7 +6,7 @@ namespace Chr15k\HttpCliGenerator\DataTransfer\Auth;
 
 use Chr15k\HttpCliGenerator\Contracts\AuthDataTransfer;
 
-final class ApiKeyData implements AuthDataTransfer
+final readonly class ApiKeyData implements AuthDataTransfer
 {
     public function __construct(
         public string $key,

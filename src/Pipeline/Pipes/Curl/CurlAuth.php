@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCliGenerator\Pipeline\Pipes\Curl;
 
+use Chr15k\AuthGenerator\AuthGenerator;
 use Chr15k\HttpCliGenerator\Contracts\Pipe;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\ApiKeyData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\BasicAuthData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\BearerTokenData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\DigestAuthData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\JWTData;
-use Chr15k\HttpCliGenerator\DataTransfer\Auth\PreEncodedJWTData;
 use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
 use Closure;
-use Firebase\JWT\JWT;
 
 final readonly class CurlAuth implements Pipe
 {
@@ -40,12 +39,12 @@ final readonly class CurlAuth implements Pipe
             return;
         }
 
-        if ($auth->preEncode) {
-            $encoded = base64_encode(sprintf('%s:%s', $auth->username, $auth->password ?? ''));
-            $data->output .= sprintf(" --header 'Authorization: Basic %s'", $encoded);
-        } else {
-            $data->output .= " --user '".$auth->username.':'.($auth->password ?? '')."'";
-        }
+        $encoded = AuthGenerator::basicAuth()
+            ->username($auth->username)
+            ->password($auth->password ?? '')
+            ->toString();
+
+        $data->output .= sprintf(" --header 'Authorization: Basic %s'", $encoded);
     }
 
     private function handleBearerToken(RequestData &$data): void
@@ -100,13 +99,12 @@ final readonly class CurlAuth implements Pipe
             return;
         }
 
-        $token = JWT::encode(
-            $auth->payload,
-            $auth->secretBase64Encoded ? base64_decode($auth->key) : $auth->key,
-            $auth->algorithm->value,
-            null,
-            $auth->headers
-        );
+        $token = AuthGenerator::jwt()
+            ->key($auth->key, $auth->secretBase64Encoded)
+            ->algorithm($auth->algorithm)
+            ->headers($auth->headers)
+            ->claims($auth->payload)
+            ->toString();
 
         if ($auth->inQuery) {
             $separator = parse_url($data->url, PHP_URL_QUERY) ? '&' : '?';

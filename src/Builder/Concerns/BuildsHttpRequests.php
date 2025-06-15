@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCliGenerator\Builder\Concerns;
 
-use Chr15k\HttpCliGenerator\Enums\Algorithm;
-use Chr15k\HttpCliGenerator\DataTransfer\Auth\JWTData;
+use Chr15k\AuthGenerator\Enums\Algorithm;
 use Chr15k\HttpCliGenerator\Contracts\AuthDataTransfer;
 use Chr15k\HttpCliGenerator\Contracts\BodyDataTransfer;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\ApiKeyData;
-use Chr15k\HttpCliGenerator\DataTransfer\Body\JsonBodyData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\BasicAuthData;
-use Chr15k\HttpCliGenerator\DataTransfer\Auth\DigestAuthData;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\BearerTokenData;
-use Chr15k\HttpCliGenerator\DataTransfer\Body\MultipartFormData;
+use Chr15k\HttpCliGenerator\DataTransfer\Auth\DigestAuthData;
+use Chr15k\HttpCliGenerator\DataTransfer\Auth\JWTData;
+use Chr15k\HttpCliGenerator\DataTransfer\Body\BinaryData;
 use Chr15k\HttpCliGenerator\DataTransfer\Body\FormUrlEncodedData;
+use Chr15k\HttpCliGenerator\DataTransfer\Body\JsonBodyData;
+use Chr15k\HttpCliGenerator\DataTransfer\Body\MultipartFormData;
 
 trait BuildsHttpRequests
 {
@@ -136,22 +137,31 @@ trait BuildsHttpRequests
         return $this->body(new MultipartFormData(data: $data));
     }
 
+    public function withBinaryBody(string $filePath): self
+    {
+        return $this->body(new BinaryData(filePath: $filePath));
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @param  array<string, string>  $headers
+     */
     public function withJWTAuth(
-        Algorithm $algorithm = Algorithm::HS256,
         string $key = '',
-        bool $secretBase64Encoded = false,
         array $payload = [],
         array $headers = [],
+        Algorithm $algorithm = Algorithm::HS256,
+        bool $secretBase64Encoded = false,
         string $headerPrefix = 'Bearer',
         bool $inQuery = false,
         string $queryKey = 'token',
     ): self {
         return $this->auth(new JWTData(
-            algorithm: $algorithm,
             key: $key,
-            secretBase64Encoded: $secretBase64Encoded,
             payload: $payload,
             headers: $headers,
+            algorithm: $algorithm,
+            secretBase64Encoded: $secretBase64Encoded,
             headerPrefix: $headerPrefix,
             inQuery: $inQuery,
             queryKey: $queryKey,
@@ -166,11 +176,6 @@ trait BuildsHttpRequests
     public function withBasicAuth(string $username, string $password): self
     {
         return $this->auth(new BasicAuthData(username: $username, password: $password));
-    }
-
-    public function withPreEncodedBasicAuth(string $username, string $password): self
-    {
-        return $this->auth(new BasicAuthData(username: $username, password: $password, preEncode: true));
     }
 
     public function withDigestAuth(string $username, string $password): self

@@ -14,12 +14,12 @@ final class RequestData
      * @param  array<string, mixed>  $parameters
      */
     public function __construct(
-        public string $method = '',
-        public string $url = '',
-        public array $headers = [],
-        public array $parameters = [],
-        public ?BodyDataTransfer $body = null,
-        public ?AuthDataTransfer $auth = null,
+        public readonly string $method = '',
+        public readonly string $url = '',
+        public readonly array $headers = [],
+        public readonly array $parameters = [],
+        public readonly ?BodyDataTransfer $body = null,
+        public readonly ?AuthDataTransfer $auth = null,
         public string $output = '',
     ) {
         //

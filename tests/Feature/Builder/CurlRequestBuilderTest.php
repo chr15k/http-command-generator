@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Firebase\JWT\JWT;
-use Chr15k\HttpCliGenerator\Enums\Algorithm;
-use Chr15k\HttpCliGenerator\Generators\CurlGenerator;
+use Chr15k\AuthGenerator\Enums\Algorithm;
 use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCliGenerator\Generators\CurlGenerator;
+use Firebase\JWT\JWT;
 
 beforeEach(function (): void {
     $this->builder = HttpRequestBuilder::create();
@@ -231,6 +231,43 @@ test('curl request builder generates curl command with json body', function (): 
     expect($output)->toBe("curl --location --request POST 'https://example.com/api' --header 'Content-Type: application/json' --data '{\"key\":\"value\"}'");
 });
 
+test('curl request builder generates curl command with binary data', function (): void {
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->post()
+        ->withBinaryBody('/path/to/file');
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request POST 'https://example.com/api' --data-binary '@/path/to/file'");
+});
+
+test('curl request builder generates curl command with test file and determines content-type', function (): void {
+    $tmpFile = tempnam(sys_get_temp_dir(), 'mytemp_');
+    if ($tmpFile === false) {
+        $this->markTestSkipped('Unable to create temporary file for testing');
+    }
+
+    $path = $tmpFile.'.txt';
+    if (! rename($tmpFile, $path)) {
+        $this->markTestSkipped('Unable to rename temporary file for testing');
+    }
+
+    if (in_array(file_put_contents($path, "This is some temporary content.\n"), [0, false], true)) {
+        $this->markTestSkipped('Unable to write to temporary file for testing');
+    }
+
+    $builder = $this->builder
+        ->url('https://example.com/api')
+        ->post()
+        ->withBinaryBody($path);
+
+    $output = $builder->toCurl();
+
+    expect($output)->toBe("curl --location --request POST 'https://example.com/api' --header 'Content-Type: text/plain' --data-binary '@{$path}'");
+});
+
 // ======================================================================
 // BASIC AUTH Tests
 // ======================================================================
@@ -240,38 +277,14 @@ test('curl request builder generates curl command with basic auth', function ():
     $builder = $this->builder
         ->url('https://example.com/api')
         ->get()
-        ->withPreEncodedBasicAuth('username', 'password');
+        ->withBasicAuth('username', 'password');
 
     $output = $builder->toCurl();
 
     expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header 'Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ='");
 });
 
-test('curl request builder generates curl command with raw basic auth', function (): void {
-
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withBasicAuth('username', 'password');
-
-    $output = $builder->toCurl();
-
-    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --user 'username:password'");
-});
-
 test('curl request builder generates curl command with no basic auth data', function (): void {
-
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withBasicAuth('', '');
-
-    $output = $builder->toCurl();
-
-    expect($output)->toBe("curl --location --request GET 'https://example.com/api'");
-});
-
-test('curl request builder generates curl command with no raw basic auth data', function (): void {
 
     $builder = $this->builder
         ->url('https://example.com/api')
@@ -447,7 +460,7 @@ test('curl request builder generates curl command with JWT pre-encoded in header
 
 test('curl request builder generates curl command with asymmetric JWT', function (): void {
 
-    $privateKey = <<<EOD
+    $privateKey = <<<'EOD'
     -----BEGIN RSA PRIVATE KEY-----
     MIIEowIBAAKCAQEAuzWHNM5f+amCjQztc5QTfJfzCC5J4nuW+L/aOxZ4f8J3Frew
     M2c/dufrnmedsApb0By7WhaHlcqCh/ScAPyJhzkPYLae7bTVro3hok0zDITR8F6S
@@ -477,7 +490,7 @@ test('curl request builder generates curl command with asymmetric JWT', function
     -----END RSA PRIVATE KEY-----
     EOD;
 
-    $publicKey = <<<EOD
+    $publicKey = <<<'EOD'
     -----BEGIN PUBLIC KEY-----
     MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuzWHNM5f+amCjQztc5QT
     fJfzCC5J4nuW+L/aOxZ4f8J3FrewM2c/dufrnmedsApb0By7WhaHlcqCh/ScAPyJ
@@ -493,7 +506,7 @@ test('curl request builder generates curl command with asymmetric JWT', function
         'iss' => 'example.org',
         'aud' => 'example.com',
         'iat' => 1356999524,
-        'nbf' => 1357000000
+        'nbf' => 1357000000,
     ];
 
     $builder = $this->builder

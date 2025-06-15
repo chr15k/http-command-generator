@@ -19,7 +19,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "firebase/php-jwt": "^6.11"
+        "chr15k/php-auth-generator": "^0.1.1"
     },
     "require-dev": {
         "laravel/pint": "^1.20.0",
@@ -49,6 +49,11 @@
     "scripts": {
         "refactor": "rector",
         "lint": "pint",
+        "tidy": [
+            "@lint",
+            "@refactor",
+            "@lint"
+        ],
         "test:refactor": "rector --dry-run",
         "test:lint": "pint --test",
         "test:types": "phpstan analyse --ansi",
