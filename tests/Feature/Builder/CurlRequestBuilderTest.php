@@ -6,6 +6,7 @@ use Chr15k\AuthGenerator\Enums\Algorithm;
 use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
 use Chr15k\HttpCliGenerator\Generators\CurlGenerator;
 use Firebase\JWT\JWT;
+use PHPUnit\Event\Code\Throwable;
 
 beforeEach(function (): void {
     $this->builder = HttpRequestBuilder::create();
@@ -244,28 +245,38 @@ test('curl request builder generates curl command with binary data', function ()
 });
 
 test('curl request builder generates curl command with test file and determines content-type', function (): void {
-    $tmpFile = tempnam(sys_get_temp_dir(), 'mytemp_');
-    if ($tmpFile === false) {
-        $this->markTestSkipped('Unable to create temporary file for testing');
+
+    try {
+        $tmpFile = tempnam(sys_get_temp_dir(), 'curl_request_builder_test__');
+        if ($tmpFile === false) {
+            throw new Exception('Unable to create temporary file for testing');
+        }
+
+        $path = $tmpFile.'.txt';
+        if (! rename($tmpFile, $path)) {
+            throw new Exception('Unable to rename temporary file for testing');
+        }
+
+        if (in_array(file_put_contents($path, "This is some temporary content.\n"), [0, false], true)) {
+            throw new Exception('Unable to write to temporary file for testing');
+        }
+
+        $builder = $this->builder
+            ->url('https://example.com/api')
+            ->post()
+            ->withBinaryBody($path);
+
+        $output = $builder->toCurl();
+
+        expect($output)->toBe("curl --location --request POST 'https://example.com/api' --header 'Content-Type: text/plain' --data-binary '@{$path}'");
+
+    } catch (Exception|Throwable $e) {
+        $this->markTestSkipped('Unable to create temporary file for testing: '.$e->getMessage());
+    } finally {
+        if (isset($path) && file_exists($path)) {
+            unlink($path);
+        }
     }
-
-    $path = $tmpFile.'.txt';
-    if (! rename($tmpFile, $path)) {
-        $this->markTestSkipped('Unable to rename temporary file for testing');
-    }
-
-    if (in_array(file_put_contents($path, "This is some temporary content.\n"), [0, false], true)) {
-        $this->markTestSkipped('Unable to write to temporary file for testing');
-    }
-
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->post()
-        ->withBinaryBody($path);
-
-    $output = $builder->toCurl();
-
-    expect($output)->toBe("curl --location --request POST 'https://example.com/api' --header 'Content-Type: text/plain' --data-binary '@{$path}'");
 });
 
 // ======================================================================
