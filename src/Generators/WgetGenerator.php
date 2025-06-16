@@ -11,22 +11,24 @@ use Chr15k\HttpCliGenerator\Pipeline\Pipes\Common\CommonAuthHeaders;
 use Chr15k\HttpCliGenerator\Pipeline\Pipes\Common\CommonAuthQuery;
 use Chr15k\HttpCliGenerator\Pipeline\Pipes\Common\CommonHeaders;
 use Chr15k\HttpCliGenerator\Pipeline\Pipes\Common\CommonUrl;
-use Chr15k\HttpCliGenerator\Pipeline\Pipes\Curl\CurlBody;
-use Chr15k\HttpCliGenerator\Pipeline\Pipes\Curl\CurlInit;
-use Chr15k\HttpCliGenerator\Pipeline\Pipes\Curl\CurlMethod;
+use Chr15k\HttpCliGenerator\Pipeline\Pipes\Wget\WgetBody;
+use Chr15k\HttpCliGenerator\Pipeline\Pipes\Wget\WgetInit;
+use Chr15k\HttpCliGenerator\Pipeline\Pipes\Wget\WgetMethod;
+use Chr15k\HttpCliGenerator\Pipeline\Pipes\Wget\WgetTimeout;
 
-final class CurlGenerator implements Generator
+final class WgetGenerator implements Generator
 {
     public static function generate(RequestData $data): string
     {
         return Pipeline::send($data)
             ->through([
-                CurlInit::class,
-                CurlMethod::class,
-                CommonUrl::class,
+                WgetInit::class,
+                WgetMethod::class,
+                WgetTimeout::class,
                 CommonHeaders::class,
                 CommonAuthHeaders::class,
-                CurlBody::class,
+                WgetBody::class,
+                CommonUrl::class,
                 CommonAuthQuery::class,
             ])
             ->thenReturn()

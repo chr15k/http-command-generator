@@ -15,7 +15,7 @@ final class RequestData
      */
     public function __construct(
         public readonly string $method = '',
-        public readonly string $url = '',
+        public string $url = '',
         public readonly array $headers = [],
         public readonly array $parameters = [],
         public readonly ?BodyDataTransfer $body = null,

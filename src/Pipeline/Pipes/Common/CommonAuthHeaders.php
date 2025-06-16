@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chr15k\HttpCliGenerator\Pipeline\Pipes\Curl;
+namespace Chr15k\HttpCliGenerator\Pipeline\Pipes\Common;
 
 use Chr15k\AuthGenerator\AuthGenerator;
 use Chr15k\HttpCliGenerator\Contracts\Pipe;
@@ -14,7 +14,7 @@ use Chr15k\HttpCliGenerator\DataTransfer\Auth\JWTData;
 use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
 use Closure;
 
-final readonly class CurlAuth implements Pipe
+final readonly class CommonAuthHeaders implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
@@ -42,9 +42,9 @@ final readonly class CurlAuth implements Pipe
         $encoded = AuthGenerator::basicAuth()
             ->username($auth->username)
             ->password($auth->password ?? '')
-            ->toString();
+            ->toHeader();
 
-        $data->output .= sprintf(" --header 'Authorization: Basic %s'", $encoded);
+        $data->output .= sprintf(" --header 'Authorization: %s'", $encoded);
     }
 
     private function handleBearerToken(RequestData &$data): void
@@ -64,11 +64,26 @@ final readonly class CurlAuth implements Pipe
         /** @var DigestAuthData $auth */
         $auth = $data->auth;
 
-        if ($auth->username === '' || $auth->username === '0') {
+        if ($auth->username === '' || $auth->realm === '') {
             return;
         }
 
-        $data->output .= sprintf(" --digest --user '%s:%s'", $auth->username, $auth->password ?? '');
+        $header = AuthGenerator::digestAuth()
+            ->username($auth->username)
+            ->password($auth->password ?? '')
+            ->algorithm($auth->algorithm)
+            ->realm($auth->realm)
+            ->method($auth->method)
+            ->uri($auth->uri)
+            ->nonce($auth->nonce)
+            ->nc($auth->nc)
+            ->cnonce($auth->cnonce)
+            ->qop($auth->qop)
+            ->opaque($auth->opaque)
+            ->entityBody($auth->entityBody)
+            ->toHeader();
+
+        $data->output .= sprintf(" --header 'Authorization: %s'", $header);
     }
 
     private function handleApiKeyAuth(RequestData &$data): void
@@ -76,18 +91,12 @@ final readonly class CurlAuth implements Pipe
         /** @var ApiKeyData $auth */
         $auth = $data->auth;
 
-        if ($auth->key === '' || $auth->key === '0') {
+        if ($auth->key === '' || $auth->key === '0' || $auth->inQuery) {
             return;
         }
 
-        if ($auth->inQuery) {
-            $separator = parse_url($data->url, PHP_URL_QUERY) ? '&' : '?';
-            $url = sprintf('%s%s%s=%s', $data->url, $separator, $auth->key, $auth->value);
-            $data->output = str_replace($data->url, $url, $data->output);
-        } else {
-            $separator = $auth->value !== '' && $auth->value !== '0' ? ':' : ';';
-            $data->output .= sprintf(" --header '%s%s %s'", $auth->key, $separator, $auth->value);
-        }
+        $separator = $auth->value !== '' && $auth->value !== '0' ? ':' : ';';
+        $data->output .= sprintf(" --header '%s%s %s'", $auth->key, $separator, $auth->value);
     }
 
     private function handleJWTAuth(RequestData &$data): void
@@ -95,7 +104,7 @@ final readonly class CurlAuth implements Pipe
         /** @var JWTData $auth */
         $auth = $data->auth;
 
-        if ($auth->key === '') {
+        if ($auth->key === '' || $auth->key === '0' || $auth->inQuery) {
             return;
         }
 
@@ -106,12 +115,8 @@ final readonly class CurlAuth implements Pipe
             ->claims($auth->payload)
             ->toString();
 
-        if ($auth->inQuery) {
-            $separator = parse_url($data->url, PHP_URL_QUERY) ? '&' : '?';
-            $url = sprintf('%s%s%s=%s', $data->url, $separator, $auth->queryKey, $token);
-            $data->output = str_replace($data->url, $url, $data->output);
-        } else {
-            $data->output .= str_replace('  ', ' ', sprintf(" --header 'Authorization: %s %s'", $auth->headerPrefix, $token));
-        }
+        $data->output .= str_replace(
+            '  ', ' ', sprintf(" --header 'Authorization: %s %s'", $auth->headerPrefix, $token)
+        );
     }
 }

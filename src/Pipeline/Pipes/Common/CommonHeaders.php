@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chr15k\HttpCliGenerator\Pipeline\Pipes\Curl;
+namespace Chr15k\HttpCliGenerator\Pipeline\Pipes\Common;
 
 use Chr15k\HttpCliGenerator\Contracts\BodyDataTransfer;
 use Chr15k\HttpCliGenerator\Contracts\Pipe;
 use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
 use Closure;
 
-final readonly class CurlHeaders implements Pipe
+final readonly class CommonHeaders implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {

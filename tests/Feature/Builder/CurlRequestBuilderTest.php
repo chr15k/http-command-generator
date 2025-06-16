@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Chr15k\AuthGenerator\Enums\Algorithm;
+use Chr15k\AuthGenerator\Enums\DigestAlgorithm;
 use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
 use Chr15k\HttpCliGenerator\Generators\CurlGenerator;
 use Firebase\JWT\JWT;
@@ -344,11 +345,18 @@ test('curl request builder generates curl command with digest auth', function ()
     $builder = $this->builder
         ->url('https://example.com/api')
         ->get()
-        ->withDigestAuth('username', 'password');
+        ->withDigestAuth(
+            username: 'username',
+            password: 'password',
+            algorithm: DigestAlgorithm::MD5,
+            realm: 'example.com',
+            method: 'GET',
+            uri: '/api'
+        );
 
     $output = $builder->toCurl();
 
-    expect($output)->toBe("curl --location --request GET 'https://example.com/api' --digest --user 'username:password'");
+    expect($output)->toBe('curl --location --request GET \'https://example.com/api\' --header \'Authorization: Digest username="username", realm="example.com", nonce="", uri="/api", algorithm="MD5", response="d7edf3213a7a22e4d0b15526b6bdd919"\'');
 });
 
 test('curl request builder generates curl command with empty digest auth', function (): void {

@@ -57,7 +57,7 @@ $curl = HttpRequestBuilder::create()
 
 // Output: curl --location --request POST 'https://api.example.com/users' \
 //  --header "Content-Type: application/json" \
-//  --data-raw '{"name":"John Doe","email":"john@example.com"}'
+//  --data '{"name":"John Doe","email":"john@example.com"}'
 ```
 
 ### Authentication Examples

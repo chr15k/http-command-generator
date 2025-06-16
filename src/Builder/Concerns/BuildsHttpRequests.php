@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chr15k\HttpCliGenerator\Builder\Concerns;
 
 use Chr15k\AuthGenerator\Enums\Algorithm;
+use Chr15k\AuthGenerator\Enums\DigestAlgorithm;
 use Chr15k\HttpCliGenerator\Contracts\AuthDataTransfer;
 use Chr15k\HttpCliGenerator\Contracts\BodyDataTransfer;
 use Chr15k\HttpCliGenerator\DataTransfer\Auth\ApiKeyData;
@@ -178,9 +179,34 @@ trait BuildsHttpRequests
         return $this->auth(new BasicAuthData(username: $username, password: $password));
     }
 
-    public function withDigestAuth(string $username, string $password): self
-    {
-        return $this->auth(new DigestAuthData(username: $username, password: $password));
+    public function withDigestAuth(
+        string $username = '',
+        string $password = '',
+        DigestAlgorithm $algorithm = DigestAlgorithm::MD5,
+        string $realm = '',
+        string $method = 'GET',
+        string $uri = '/',
+        string $nonce = '',
+        string $nc = '',
+        string $cnonce = '',
+        string $qop = '',
+        string $opaque = '',
+        string $entityBody = '',
+    ): self {
+        return $this->auth(new DigestAuthData(
+            username: $username,
+            password: $password,
+            algorithm: $algorithm,
+            realm: $realm,
+            method: $method,
+            uri: $uri,
+            nonce: $nonce,
+            nc: $nc,
+            cnonce: $cnonce,
+            qop: $qop,
+            opaque: $opaque,
+            entityBody: $entityBody
+        ));
     }
 
     public function withBearerToken(string $token): self

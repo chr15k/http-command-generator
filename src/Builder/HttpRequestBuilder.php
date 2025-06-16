@@ -8,6 +8,7 @@ use Chr15k\HttpCliGenerator\Builder\Concerns\BuildsHttpRequests;
 use Chr15k\HttpCliGenerator\Contracts\Generator;
 use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
 use Chr15k\HttpCliGenerator\Generators\CurlGenerator;
+use Chr15k\HttpCliGenerator\Generators\WgetGenerator;
 use InvalidArgumentException;
 
 final class HttpRequestBuilder
@@ -23,6 +24,7 @@ final class HttpRequestBuilder
     public function __construct()
     {
         $this->registerGenerator('curl', new CurlGenerator);
+        $this->registerGenerator('wget', new WgetGenerator);
     }
 
     /**
@@ -41,6 +43,14 @@ final class HttpRequestBuilder
     public function toCurl(): string
     {
         return $this->generators['curl']->generate($this->toRequestData());
+    }
+
+    /**
+     * Generate wget command for the request
+     */
+    public function toWget(): string
+    {
+        return $this->generators['wget']->generate($this->toRequestData());
     }
 
     /**
