@@ -19,12 +19,15 @@ This guide provides comprehensive examples of how to use the HTTP CLI Generator 
   - [Form URL-encoded](#form-url-encoded)
   - [Multipart Form Data](#multipart-form-data)
   - [Binary Data](#binary-data)
+- [Command Generators](#command-generators)
+  - [cURL Generator](#curl-generator)
+  - [wget Generator](#wget-generator)
 - [Extending with Custom Generators](#extending-with-custom-generators)
 - [Full Examples](#full-examples)
 
 ## Introduction
 
-HTTP CLI Generator is a PHP library that allows you to generate CLI commands for HTTP requests using a fluent builder pattern. It currently supports cURL commands but is designed to be extended to support other command formats.
+HTTP CLI Generator is a PHP library that allows you to generate CLI commands for HTTP requests using a fluent builder pattern. It supports cURL and wget commands out of the box and is designed to be extended to support other command formats.
 
 ## Getting Started
 
@@ -129,11 +132,33 @@ This will generate a JWT and add it as a Bearer token in the Authorization heade
 
 ### Digest Authentication
 
-Add Digest authentication to your request:
+Add Digest authentication to your request. Digest authentication can be used with minimal parameters or with full control over all digest components:
 
 ```php
-$builder->withDigestAuth('username', 'password');
+use Chr15k\AuthGenerator\Enums\DigestAlgorithm;
+
+// Basic usage with only username and password
+$builder->withDigestAuth(
+    username: 'username',
+    password: 'password'
+);
+
+// Advanced usage with all parameters
+$builder->withDigestAuth(
+    username: 'username',
+    password: 'password',
+    algorithm: DigestAlgorithm::MD5, // Default is MD5
+    realm: 'example.com',
+    method: 'GET',
+    uri: '/protected-resource',
+    nonce: 'nonce_value',
+    nc: '00000001',
+    cnonce: 'cnonce_value',
+    qop: 'auth'
+);
 ```
+
+The complete set of parameters allows you to have fine-grained control over the digest authentication process, which can be important when working with specific server implementations or when testing security mechanisms.
 
 ## Request Bodies
 
@@ -184,6 +209,76 @@ $builder->withBinaryBody('/path/to/file.bin');
 
 This sends the raw binary content of the file without any additional encoding.
 
+## Command Generators
+
+HTTP CLI Generator supports multiple command-line tools for making HTTP requests. You can choose which generator to use based on your preferences or requirements.
+
+### cURL Generator
+
+cURL is the default generator and can be explicitly specified using the `toCurl()` method:
+
+```php
+use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+
+$curl = HttpRequestBuilder::create()
+    ->url('https://api.example.com/users')
+    ->get()
+    ->toCurl();
+```
+
+You can also use the generic `to()` method:
+
+```php
+$curl = HttpRequestBuilder::create()
+    ->url('https://api.example.com/users')
+    ->get()
+    ->to('curl');
+```
+
+### wget Generator
+
+wget is an alternative command-line tool for making HTTP requests. Use the `toWget()` method to generate wget commands:
+
+```php
+use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+
+$wget = HttpRequestBuilder::create()
+    ->url('https://api.example.com/users')
+    ->get()
+    ->toWget();
+
+// Output: wget --no-check-certificate --quiet --method GET --timeout=0 'https://api.example.com/users'
+```
+
+You can also use the generic `to()` method:
+
+```php
+$wget = HttpRequestBuilder::create()
+    ->url('https://api.example.com/users')
+    ->get()
+    ->to('wget');
+```
+
+#### wget specific characteristics
+
+- Uses `--body-data` for request bodies
+- Uses `--method` to specify HTTP methods
+- Sets default timeout to 0 (--timeout=0)
+- Uses `--no-check-certificate` and `--quiet` by default
+
+## Extending with Custom Generators
+
+You can extend the library with your own command generators. For example:
+
+```php
+use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+
+$customCommand = HttpRequestBuilder::create()
+    ->url('https://api.example.com/users')
+    ->get()
+    ->to('myCustomGenerator');
+```
+
 ## Full Examples
 
 ### GET Request with Query Parameters
@@ -191,12 +286,21 @@ This sends the raw binary content of the file without any additional encoding.
 ```php
 use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
 
+// Using cURL
 $curl = HttpRequestBuilder::create()
     ->url('https://api.example.com/search?q=test&page=1')
     ->get()
     ->header('Accept', 'application/json')
     ->withBearerToken('your-access-token')
     ->toCurl();
+
+// Using wget
+$wget = HttpRequestBuilder::create()
+    ->url('https://api.example.com/search?q=test&page=1')
+    ->get()
+    ->header('Accept', 'application/json')
+    ->withBearerToken('your-access-token')
+    ->toWget();
 ```
 
 ### POST Request with JSON Body and Authentication
@@ -266,4 +370,20 @@ $curl = HttpRequestBuilder::create()
         algorithm: Algorithm::HS256
     )
     ->toCurl();
+```
+
+### DELETE Request with wget
+
+```php
+use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+
+$wget = HttpRequestBuilder::create()
+    ->url('https://api.example.com/users/123')
+    ->delete()
+    ->withBearerToken('your-access-token')
+    ->toWget();
+
+// Output: wget --no-check-certificate --quiet --method DELETE --timeout=0 \
+//   --header "Authorization: Bearer your-access-token" \
+//   'https://api.example.com/users/123'
 ```

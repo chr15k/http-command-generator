@@ -16,7 +16,9 @@ Quick reference guide for the HTTP CLI Generator library.
 | `put()` | Set method to PUT | `->put()` |
 | `delete()` | Set method to DELETE | `->delete()` |
 | `toCurl()` | Generate cURL command | `->toCurl()` |
-| `to(string $generator)` | Use specific generator | `->to('curl')` |
+| `to(string $generator)` | Use specific generator | `->to('curl')` or `->to('wget')` |
+| `toCurl()` | Generate cURL command | `->toCurl()` |
+| `toWget()` | Generate wget command | `->toWget()` |
 | `availableGenerators()` | List available generators | `$builder->availableGenerators()` |
 | `registerGenerator(string $name, Generator $generator)` | Register custom generator | `->registerGenerator('httpie', new HttpieGenerator())` |
 
@@ -34,7 +36,7 @@ Quick reference guide for the HTTP CLI Generator library.
 | `auth(AuthDataTransfer $auth)` | Set auth with DTO | `->auth(new BasicAuthData('user', 'pass'))` |
 | `withApiKey(string $key, string $value, bool $inQuery = false)` | Add API key auth | `->withApiKey('X-API-Key', 'key123')` |
 | `withBasicAuth(string $username, string $password)` | Add Basic auth | `->withBasicAuth('user', 'pass')` |
-| `withDigestAuth(string $username, string $password)` | Add Digest auth | `->withDigestAuth('user', 'pass')` |
+| `withDigestAuth(string $username, string $password, DigestAlgorithm $algorithm = DigestAlgorithm::MD5, string $realm = '', string $method = '', string $uri = '', string $nonce = '', string $nc = '', string $cnonce = '', string $qop = '')` | Add Digest auth | `->withDigestAuth('user', 'pass', DigestAlgorithm::MD5, 'example.com', 'GET', '/api')` |
 | `withBearerToken(string $token)` | Add Bearer token | `->withBearerToken('token123')` |
 | `withJWTAuth(string $key, array $payload = [], array $headers = [], Algorithm $algorithm = Algorithm::HS256, bool $secretBase64Encoded = false, string $headerPrefix = 'Bearer', bool $inQuery = false, string $queryKey = 'token')` | Add JWT auth | `->withJWTAuth('secret', ['user_id' => 123])` |
 
