@@ -36,7 +36,13 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install dependencies
-      run: composer update --prefer-dist --no-progress
+      run: composer install --prefer-dist --no-progress
+
+    - name: Generate optimized autoloader
+      run: composer dump-autoload --optimize
+
+    - name: Validate installed packages
+      run: composer show chr15k/php-auth-generator
 
     - name: Run test suite
       run: composer test
