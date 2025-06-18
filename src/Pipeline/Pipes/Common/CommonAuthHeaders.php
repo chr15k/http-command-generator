@@ -79,11 +79,10 @@ final readonly class CommonAuthHeaders implements Pipe
             ->method($auth->method)
             ->uri($auth->uri)
             ->nonce($auth->nonce)
-            ->nc($auth->nc)
-            ->cnonce($auth->cnonce)
+            ->nonceCount($auth->nc)
+            ->clientNonce($auth->cnonce)
             ->qop($auth->qop)
             ->opaque($auth->opaque)
-            ->entityBody($auth->entityBody)
             ->toHeader();
 
         $data->output .= sprintf(" --header 'Authorization: %s'", $header);
