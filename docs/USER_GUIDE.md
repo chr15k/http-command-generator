@@ -1,6 +1,6 @@
 # User Guide
 
-This guide provides comprehensive examples of how to use the HTTP CLI Generator library.
+This guide provides comprehensive examples of how to use the HTTP Command Generator library.
 
 ## Table of Contents
 
@@ -27,7 +27,7 @@ This guide provides comprehensive examples of how to use the HTTP CLI Generator 
 
 ## Introduction
 
-HTTP CLI Generator is a PHP library that allows you to generate CLI commands for HTTP requests using a fluent builder pattern. It supports cURL and wget commands out of the box and is designed to be extended to support other command formats.
+HTTP Command Generator is a PHP library that allows you to generate CLI commands for HTTP requests using a fluent builder pattern. It supports cURL and wget commands out of the box and is designed to be extended to support other command formats.
 
 ## Getting Started
 
@@ -239,7 +239,7 @@ This sends the raw binary content of the file without any additional encoding.
 
 ## Command Generators
 
-HTTP CLI Generator supports multiple command-line tools for making HTTP requests. You can choose which generator to use based on your preferences or requirements.
+HTTP Command Generator supports multiple command-line tools for making HTTP requests. You can choose which generator to use based on your preferences or requirements.
 
 ### cURL Generator
 
@@ -267,13 +267,10 @@ $wget = HttpCommand::get('https://api.example.com/users')
 
 #### wget specific characteristics
 
-- Uses `--body-data` for request bodies (JSON, form data)
-- Uses `--body-file` for binary file uploads
+- Uses `--body-data` for request bodies
 - Uses `--method` to specify HTTP methods
 - Sets default timeout to 0 (--timeout=0)
 - Uses `--no-check-certificate` and `--quiet` by default
-- Converts multipart form data to regular form data (wget limitation)
-- Supports all authentication methods the same as cURL
 
 ## Full Examples
 

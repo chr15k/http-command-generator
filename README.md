@@ -1,8 +1,11 @@
-# HTTP CLI Generator
+# HTTP Command Generator
 
 [![Latest Stable Version](https://poser.pugx.org/chr15k/http-command-generator/v)](https://packagist.org/packages/chr15k/http-command-generator) [![Total Downloads](https://poser.pugx.org/chr15k/http-command-generator/downloads)](https://packagist.org/packages/chr15k/http-command-generator) [![Latest Unstable Version](https://poser.pugx.org/chr15k/http-command-generator/v/unstable)](https://packagist.org/packages/chr15k/http-command-generator) [![License](https://poser.pugx.org/chr15k/http-command-generator/license)](https://packagist.org/packages/chr15k/http-command-generator) [![PHP Version Require](https://poser.pugx.org/chr15k/http-command-generator/require/php)](https://packagist.org/packages/chr15k/http-command-generator)
 
-A PHP library for generating HTTP CLI commands with a fluent builder API.
+A PHP library for generating HTTP CLI commands with a fluent builder API and authentication support.
+
+> [!NOTE]
+> CLI tools currently supported are [cURL](https://curl.se/) and [wget](https://www.gnu.org/software/wget/)
 
 ## Installation
 
@@ -367,9 +370,9 @@ $curl = HttpCommand::get('https://api.example.com/data')
 
 ## Command Generators
 
-HTTP CLI Generator supports two command-line tools for making HTTP requests:
+HTTP Command Generator supports two command-line tools for making HTTP requests:
 
-### cURL Generator (Default)
+### cURL Generator
 
 cURL is the most widely used command-line tool for HTTP requests and is the default generator:
 

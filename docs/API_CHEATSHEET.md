@@ -1,6 +1,6 @@
 # API Cheat Sheet
 
-Quick reference guide for the HTTP CLI Generator library.
+Quick reference guide for the HTTP Command Generator library.
 
 ## Builder Methods
 

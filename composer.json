@@ -1,6 +1,6 @@
 {
     "name": "chr15k/http-command-generator",
-    "description": "Generate HTTP CLI commands",
+    "description": "A PHP library for generating HTTP CLI commands with a fluent builder API and authentication support",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -12,10 +12,13 @@
     "keywords": [
         "http",
         "cli",
+        "command",
         "php",
         "generator",
         "api",
-        "curl"
+        "curl",
+        "wget",
+        "testing"
     ],
     "require": {
         "php": "^8.2",
