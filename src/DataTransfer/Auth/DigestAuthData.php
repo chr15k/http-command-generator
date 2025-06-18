@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Chr15k\HttpCliGenerator\DataTransfer\Auth;
+namespace Chr15k\HttpCommand\DataTransfer\Auth;
 
 use Chr15k\AuthGenerator\Enums\DigestAlgorithm;
-use Chr15k\HttpCliGenerator\Contracts\AuthDataTransfer;
+use Chr15k\HttpCommand\Contracts\AuthDataTransfer;
 use SensitiveParameter;
 
+/**
+ * @internal
+ */
 final readonly class DigestAuthData implements AuthDataTransfer
 {
     public function __construct(

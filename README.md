@@ -1,9 +1,10 @@
 # HTTP CLI Generator
 
-[![Latest Stable Version](https://img.shields.io/packagist/v/chr15k/http-cli-generator.svg?style=flat-square)](https://packagist.org/packages/chr15k/http-cli-generator)
-[![Total Downloads](https://img.shields.io/packagist/dt/chr15k/http-cli-generator.svg?style=flat-square)](https://packagist.org/packages/chr15k/http-cli-generator)
-[![License](https://img.shields.io/packagist/l/chr15k/http-cli-generator.svg?style=flat-square)](https://packagist.org/packages/chr15k/http-cli-generator)
-[![PHP Version Require](https://img.shields.io/packagist/php-v/chr15k/http-cli-generator.svg?style=flat-square)](https://packagist.org/packages/chr15k/http-cli-generator)
+[![Latest Stable Version](https://poser.pugx.org/chr15k/http-c// Using a Bearer Token
+$curl = CommandBuilder::get()
+    ->url('https://api.example.com/protected-resource')
+    ->withBearerToken('your-access-token')
+    ->toCurl();erator/v)](https://packagist.org/packages/chr15k/http-command-generator) [![Total Downloads](https://poser.pugx.org/chr15k/http-command-generator/downloads)](https://packagist.org/packages/chr15k/http-command-generator) [![Latest Unstable Version](https://poser.pugx.org/chr15k/http-command-generator/v/unstable)](https://packagist.org/packages/chr15k/http-command-generator) [![License](https://poser.pugx.org/chr15k/http-command-generator/license)](https://packagist.org/packages/chr15k/http-command-generator) [![PHP Version Require](https://poser.pugx.org/chr15k/http-command-generator/require/php)](https://packagist.org/packages/chr15k/http-command-generator)
 
 A PHP library for generating HTTP CLI commands with a fluent builder API.
 
@@ -12,7 +13,7 @@ A PHP library for generating HTTP CLI commands with a fluent builder API.
 Requires [PHP 8.2+](https://www.php.net/releases/)
 
 ```bash
-composer require chr15k/http-cli-generator
+composer require chr15k/http-command-generator
 ```
 
 ## Features
@@ -21,29 +22,25 @@ composer require chr15k/http-cli-generator
 - **Multiple HTTP Methods**: Support for GET, POST, PUT, DELETE and custom methods
 - **Authentication Options**: Basic Auth, Bearer Token, API Key, JWT, and Digest Auth
 - **Body Formats**: JSON, form URL-encoded, multipart form data, and binary file data
-- **Multiple Command Generators**: Support for cURL and wget commands out of the box
-- **Extensible Design**: Add custom command generators beyond the included ones
-- **Zero External Dependencies**: Only requires chr15k/php-auth-generator for advanced auth options
+- **Zero External Dependencies**: Only requires chr15k/http-command-generator for advanced auth options
 
 ## Basic Usage
 
 ### Simple GET Request
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
 // Build a simple GET request with cURL
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::get()
     ->url('https://api.example.com/users')
-    ->get()
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/users'
 
 // Generate the same request with wget
-$wget = HttpRequestBuilder::create()
+$wget = CommandBuilder::get()
     ->url('https://api.example.com/users')
-    ->get()
     ->toWget();
 
 // Output: wget --no-check-certificate --quiet --method GET --timeout=0 'https://api.example.com/users'
@@ -52,12 +49,11 @@ $wget = HttpRequestBuilder::create()
 ### POST Request with JSON Body
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
 // Build a POST request with JSON data using cURL
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::post()
     ->url('https://api.example.com/users')
-    ->post()
     ->withJsonBody([
         'name' => 'John Doe',
         'email' => 'john@example.com',
@@ -69,9 +65,8 @@ $curl = HttpRequestBuilder::create()
 //  --data '{"name":"John Doe","email":"john@example.com"}'
 
 // Generate the same POST request using wget
-$wget = HttpRequestBuilder::create()
+$wget = CommandBuilder::post()
     ->url('https://api.example.com/users')
-    ->post()
     ->withJsonBody([
         'name' => 'John Doe',
         'email' => 'john@example.com',
@@ -89,13 +84,12 @@ $wget = HttpRequestBuilder::create()
 #### Bearer Token Authentication
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
 // Using a Bearer Token
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::get()
     ->url('https://api.example.com/protected-resource')
-    ->get()
-    ->withBearerToken('your-access-token')
+    ->withBearerToken(token: 'your-access-token')
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/protected-resource' \
@@ -105,13 +99,15 @@ $curl = HttpRequestBuilder::create()
 #### Basic Authentication
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
 // Using Basic Auth
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::get()
     ->url('https://api.example.com/protected-resource')
-    ->get()
-    ->withBasicAuth('username', 'password')
+    ->withBasicAuth(
+        username: 'username',
+        password: 'password'
+    )
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/protected-resource' \
@@ -121,23 +117,28 @@ $curl = HttpRequestBuilder::create()
 #### API Key Authentication
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
 // Using an API Key in header
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::get()
     ->url('https://api.example.com/data')
-    ->get()
-    ->withApiKey('X-API-Key', 'your-api-key', false)
+    ->withApiKey(
+        key: 'X-API-Key',
+        value: 'your-api-key'
+    )
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/data' \
 //  --header "X-API-Key: your-api-key"
 
 // Using an API Key in query string
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::get()
     ->url('https://api.example.com/data')
-    ->get()
-    ->withApiKey('api_key', 'your-api-key', true)
+    ->withApiKey(
+        key: 'X-API-Key',
+        value: 'your-api-key',
+        inQuery: true
+    )
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/data?api_key=your-api-key'
@@ -146,13 +147,12 @@ $curl = HttpRequestBuilder::create()
 #### Digest Authentication
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 use Chr15k\AuthGenerator\Enums\DigestAlgorithm;
 
 // Basic Digest Auth
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::get()
     ->url('https://api.example.com/protected-resource')
-    ->get()
     ->withDigestAuth(
         username: 'username',
         password: 'password'
@@ -163,9 +163,8 @@ $curl = HttpRequestBuilder::create()
 //  --header 'Authorization: Digest username="username", realm="", nonce="", uri="", algorithm="MD5", response="..."'
 
 // Advanced Digest Auth with all parameters
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::get()
     ->url('https://api.example.com/protected-resource')
-    ->get()
     ->withDigestAuth(
         username: 'username',
         password: 'password',
@@ -181,7 +180,7 @@ $curl = HttpRequestBuilder::create()
     ->toCurl();
 
 // Using Digest Auth with wget
-$wget = HttpRequestBuilder::create()
+$wget = CommandBuilder::create()
     ->url('https://api.example.com/protected-resource')
     ->get()
     ->withDigestAuth(
@@ -210,12 +209,11 @@ $wget = HttpRequestBuilder::create()
 #### Form URL-encoded Data
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
 // Form URL-encoded data
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::post()
     ->url('https://api.example.com/form')
-    ->post()
     ->withFormBody([
         'name' => 'John Doe',
         'email' => 'john@example.com',
@@ -231,12 +229,11 @@ $curl = HttpRequestBuilder::create()
 #### Multipart Form Data
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
 // Multipart form data (useful for file uploads)
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::post()
     ->url('https://api.example.com/upload')
-    ->post()
     ->withMultipartBody([
         'file' => '@/path/to/file.jpg',
         'name' => 'Profile Photo',
@@ -251,12 +248,11 @@ $curl = HttpRequestBuilder::create()
 #### Binary Data
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
 // Send binary file content
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::post()
     ->url('https://api.example.com/upload-binary')
-    ->post()
     ->withBinaryBody('/path/to/file.bin')
     ->toCurl();
 
@@ -267,12 +263,11 @@ $curl = HttpRequestBuilder::create()
 ### Custom Request Headers
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
 // Adding custom headers
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::get()
     ->url('https://api.example.com/data')
-    ->get()
     ->header('Accept', 'application/json')
     ->header('Cache-Control', 'no-cache')
     ->toCurl();
@@ -282,9 +277,8 @@ $curl = HttpRequestBuilder::create()
 //  --header "Cache-Control: no-cache"
 
 // Alternative way to add multiple headers
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::get()
     ->url('https://api.example.com/data')
-    ->get()
     ->headers([
         'Accept' => 'application/json',
         'Cache-Control' => 'no-cache',
@@ -295,8 +289,8 @@ $curl = HttpRequestBuilder::create()
 
 ## Documentation
 
-- [User Guide](https://github.com/chr15k/http-cli-generator/blob/main/docs/USER_GUIDE.md) - Comprehensive guide with examples
-- [API Cheat Sheet](https://github.com/chr15k/http-cli-generator/blob/main/docs/API_CHEATSHEET.md) - Quick reference of all available methods
+- [User Guide](https://github.com/chr15k/http-command-generator/blob/main/docs/USER_GUIDE.md) - Comprehensive guide with examples
+- [API Cheat Sheet](https://github.com/chr15k/http-command-generator/blob/main/docs/API_CHEATSHEET.md) - Quick reference of all available methods
 
 ## License
 

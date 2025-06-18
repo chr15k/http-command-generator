@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Chr15k\HttpCliGenerator\DataTransfer\Body;
+namespace Chr15k\HttpCommand\DataTransfer\Body;
 
-use Chr15k\HttpCliGenerator\Contracts\BodyDataTransfer;
+use Chr15k\HttpCommand\Contracts\BodyDataTransfer;
 use finfo;
 use Throwable;
 
+/**
+ * @internal
+ */
 final readonly class BinaryData implements BodyDataTransfer
 {
     public function __construct(private string $filePath = '')

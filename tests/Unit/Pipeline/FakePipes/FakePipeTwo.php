@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Pipeline\FakePipes;
 
-use Chr15k\HttpCliGenerator\Contracts\Pipe;
-use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
+use Chr15k\HttpCommand\Contracts\Pipe;
+use Chr15k\HttpCommand\DataTransfer\RequestData;
 use Closure;
 
 final class FakePipeTwo implements Pipe

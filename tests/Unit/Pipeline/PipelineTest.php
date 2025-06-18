@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
-use Chr15k\HttpCliGenerator\Exceptions\InvalidPipeException;
-use Chr15k\HttpCliGenerator\Pipeline\Pipeline;
+use Chr15k\HttpCommand\DataTransfer\RequestData;
+use Chr15k\HttpCommand\Exceptions\InvalidPipeException;
+use Chr15k\HttpCommand\Pipeline\Pipeline;
 use Tests\Unit\Pipeline\FakePipes\FakePipeOne;
 use Tests\Unit\Pipeline\FakePipes\FakePipeTwo;
 

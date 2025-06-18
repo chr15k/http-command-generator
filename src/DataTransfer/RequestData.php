@@ -2,25 +2,29 @@
 
 declare(strict_types=1);
 
-namespace Chr15k\HttpCliGenerator\DataTransfer;
+namespace Chr15k\HttpCommand\DataTransfer;
 
-use Chr15k\HttpCliGenerator\Contracts\AuthDataTransfer;
-use Chr15k\HttpCliGenerator\Contracts\BodyDataTransfer;
+use Chr15k\HttpCommand\Contracts\AuthDataTransfer;
+use Chr15k\HttpCommand\Contracts\BodyDataTransfer;
 
+/**
+ * @internal
+ */
 final class RequestData
 {
     /**
      * @param  array<string, string>  $headers
-     * @param  array<string, mixed>  $parameters
+     * @param  array<string, array<int, string>|string>  $queries
      */
     public function __construct(
         public readonly string $method = '',
-        public string $url = '',
+        public readonly string $url = '',
         public readonly array $headers = [],
-        public readonly array $parameters = [],
+        public readonly array $queries = [],
         public readonly ?BodyDataTransfer $body = null,
         public readonly ?AuthDataTransfer $auth = null,
         public string $output = '',
+        public readonly bool $encode = true
     ) {
         //
     }

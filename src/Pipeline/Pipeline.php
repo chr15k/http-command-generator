@@ -2,14 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Chr15k\HttpCliGenerator\Pipeline;
+namespace Chr15k\HttpCommand\Pipeline;
 
-use Chr15k\HttpCliGenerator\Contracts\Pipe;
-use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
-use Chr15k\HttpCliGenerator\Exceptions\InvalidPipeException;
+use Chr15k\HttpCommand\Contracts\Pipe;
+use Chr15k\HttpCommand\DataTransfer\RequestData;
+use Chr15k\HttpCommand\Exceptions\InvalidPipeException;
 use Closure;
 use Throwable;
 
+/**
+ * @internal
+ */
 final class Pipeline
 {
     private RequestData $passable;

@@ -4,117 +4,78 @@ declare(strict_types=1);
 
 use Chr15k\AuthGenerator\Enums\Algorithm;
 use Chr15k\AuthGenerator\Enums\DigestAlgorithm;
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
-use Chr15k\HttpCliGenerator\Generators\WgetGenerator;
-use PHPUnit\Event\Code\Throwable;
-
-beforeEach(function (): void {
-    $this->builder = HttpRequestBuilder::create();
-});
+use Chr15k\HttpCommand\HttpCommand;
 
 // ======================================================================
 // General Tests
 // ======================================================================
 
-test('wget request builder create method returns instance', function (): void {
-    expect($this->builder)->toBeInstanceOf(HttpRequestBuilder::class);
-});
-
-test('wget request builder can list available generators', function (): void {
-    $generators = $this->builder->availableGenerators();
-    expect($generators)->toBeArray();
-    expect($generators)->toHaveKey('wget');
-    expect($generators['wget'])->toBeInstanceOf(WgetGenerator::class);
-});
-
-test('wget request builder returns empty string when no parameters are set', function (): void {
-    $output = $this->builder->to('wget');
-    expect($output)->toBe('');
-});
-
-test('wget request builder throws exception for unregistered generator', function (): void {
-    $this->builder->to('nonexistent');
-})->throws(InvalidArgumentException::class, "Generator 'nonexistent' is not registered.");
-
 test('wget request builder generates basic wget command', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api');
+    $command = HttpCommand::get('https://example.com/api');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with method', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->post();
+    $command = HttpCommand::post('https://example.com/api');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method POST --timeout=0 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with header method', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
+    $command = HttpCommand::get('https://example.com/api')
         ->header('Authorization', 'Bearer token')
         ->header('Accept', 'application/json');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 --header \"Authorization: Bearer token\" --header \"Accept: application/json\" 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with headers method', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
+    $command = HttpCommand::get('https://example.com/api')
         ->headers([
             'Authorization' => 'Bearer token',
             'Accept' => 'application/json',
             'X-Custom-Header' => 'CustomValue',
         ]);
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 --header \"Authorization: Bearer token\" --header \"Accept: application/json\" --header \"X-Custom-Header: CustomValue\" 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with query parameters', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api?param1=value1&param2=value2')
-        ->get();
+    $command = HttpCommand::get('https://example.com/api?param1=value1&param2=value2');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api?param1=value1&param2=value2'");
 });
 
 test('wget request builder generates wget command with custom method', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->method('PATCH');
+    $command = HttpCommand::patch('https://example.com/api');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method PATCH --timeout=0 'https://example.com/api'");
 });
 
 test('wget request builder generates wget deletion command', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api/resource/123')
-        ->delete();
+    $command = HttpCommand::delete('https://example.com/api/resource/123');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method DELETE --timeout=0 'https://example.com/api/resource/123'");
 });
@@ -125,112 +86,94 @@ test('wget request builder generates wget deletion command', function (): void {
 
 test('wget request builder generates wget command with custom headers and body', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->post()
+    $command = HttpCommand::post('https://example.com/api')
         ->header('Content-Type', 'application/json')
-        ->withRawJsonBody('{"key":"value"}');
+        ->json('{"key":"value"}', true);
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method POST --timeout=0 --header \"Content-Type: application/json\" --body-data '{\"key\":\"value\"}' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with raw JSON body and auto adds Content-Type header', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->post()
-        ->withRawJsonBody('{"key":"value"}');
+    $command = HttpCommand::post('https://example.com/api')
+        ->json('{"key":"value"}', true);
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: application/json' --body-data '{\"key\":\"value\"}' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with form data', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->post()
-        ->withFormBody(['key1' => 'value1', 'key2' => 'value2']);
+    $command = HttpCommand::post('https://example.com/api')
+        ->form(['key1' => 'value1', 'key2' => 'value2']);
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: application/x-www-form-urlencoded' --body-data 'key1=value1&key2=value2' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with empty multipart', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->post()
-        ->withMultipartBody([
+    $command = HttpCommand::post('https://example.com/api')
+        ->multipart([
             'foo' => 'bar',
             'lang' => 'en',
         ]);
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method POST --timeout=0 --body-data 'foo=bar&lang=en' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with multiple multipart body', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->post()
-        ->withMultipartBody([]);
+    $command = HttpCommand::post('https://example.com/api')
+        ->multipart([]);
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method POST --timeout=0 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with empty body', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->post()
-        ->withRawJsonBody('');
+    $command = HttpCommand::post('https://example.com/api')
+        ->json('', true);
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: application/json' --body-data '' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with empty form data', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->post()
-        ->withFormBody([]);
+    $command = HttpCommand::post('https://example.com/api')
+        ->form([]);
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: application/x-www-form-urlencoded' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with json body', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->post()
-        ->withJsonBody(['key' => 'value']);
+    $command = HttpCommand::post('https://example.com/api')
+        ->json(['key' => 'value']);
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: application/json' --body-data '{\"key\":\"value\"}' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with binary data', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->post()
-        ->withBinaryBody('/path/to/file');
+    $command = HttpCommand::post('https://example.com/api')
+        ->file('/path/to/file');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method POST --timeout=0 --body-file='/path/to/file' 'https://example.com/api'");
 });
@@ -252,12 +195,10 @@ test('wget request builder generates wget command with test file and determines 
             throw new Exception('Unable to write to temporary file for testing');
         }
 
-        $builder = $this->builder
-            ->url('https://example.com/api')
-            ->post()
-            ->withBinaryBody($path);
+        $command = HttpCommand::post('https://example.com/api')
+            ->file($path);
 
-        $output = $builder->toWget();
+        $output = $command->toWget();
 
         expect($output)->toBe("wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: text/plain' --body-file='{$path}' 'https://example.com/api'");
 
@@ -276,24 +217,20 @@ test('wget request builder generates wget command with test file and determines 
 
 test('wget request builder generates wget command with basic auth', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withBasicAuth('username', 'password');
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->basic('username', 'password');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 --header 'Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with no basic auth data', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withBasicAuth('', '');
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->basic('', '');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api'");
 });
@@ -304,24 +241,20 @@ test('wget request builder generates wget command with no basic auth data', func
 
 test('wget request builder generates wget command with bearer token', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withBearerToken('your_token_here');
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->withBearerToken('your_token_here');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 --header 'Authorization: Bearer your_token_here' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with empty bearer token', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withBearerToken('');
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->withBearerToken('');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api'");
 });
@@ -332,10 +265,8 @@ test('wget request builder generates wget command with empty bearer token', func
 
 test('wget request builder generates wget command with digest auth', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withDigestAuth(
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->digest(
             username: 'username',
             password: 'password',
             algorithm: DigestAlgorithm::MD5,
@@ -348,19 +279,17 @@ test('wget request builder generates wget command with digest auth', function ()
             qop: 'auth'
         );
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 --header 'Authorization: Digest username=\"username\", realm=\"example_realm\", nonce=\"nonce_value\", uri=\"/api\", algorithm=\"MD5\", qop=auth, nc=00000001, cnonce=\"cnonce_value\", response=\"6d83896b8040bd7dc9c5602ae8730fb6\"' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with empty digest auth', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withDigestAuth('', '');
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->digest('', '');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api'");
 });
@@ -371,48 +300,40 @@ test('wget request builder generates wget command with empty digest auth', funct
 
 test('wget request builder generates wget command with API key in query', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withApiKey('token', 'value', true);
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->apiKey('token', 'value', true);
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api?token=value'");
 });
 
 test('wget request builder generates wget command with API key in header', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withApiKey('X-API-Key', 'your_api_key');
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->apiKey('X-API-Key', 'your_api_key');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 --header 'X-API-Key: your_api_key' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with empty API key value', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withApiKey('token', '');
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->apiKey('token', '');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 --header 'token; ' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with empty API key and value', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withApiKey('', '');
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->apiKey('', '');
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api'");
 });
@@ -423,50 +344,44 @@ test('wget request builder generates wget command with empty API key and value',
 
 test('wget request builder generates wget command with JWT pre-encoded in header', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withJWTAuth(
-            payload: ['user' => 'test'],
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->jwt(
             key: 'your_secret',
+            payload: ['user' => 'test'],
             headerPrefix: 'Bearer'
         );
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 --header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoidGVzdCJ9.GlO4bXeWhU1as72XerhPfJtj1H92s9dnwDV-gJDjrKU' 'https://example.com/api'");
 });
 
 test('wget request builder generates wget command with JWT pre-encoded in query', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withJWTAuth(
-            payload: ['user' => 'test'],
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->jwt(
             key: 'your_secret',
+            payload: ['user' => 'test'],
             inQuery: true,
             queryKey: 'jwt'
         );
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoidGVzdCJ9.GlO4bXeWhU1as72XerhPfJtj1H92s9dnwDV-gJDjrKU'");
 });
 
 test('wget request builder generates wget command with JWT pre-encoded in header with base64 key', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withJWTAuth(
-            payload: ['user' => 'test'],
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->jwt(
             key: base64_encode('your_secret'),
+            payload: ['user' => 'test'],
             secretBase64Encoded: true,
             headerPrefix: 'Bearer'
         );
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 --header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoidGVzdCJ9.GlO4bXeWhU1as72XerhPfJtj1H92s9dnwDV-gJDjrKU' 'https://example.com/api'");
 });
@@ -522,16 +437,14 @@ test('wget request builder generates wget command with asymmetric JWT', function
         'nbf' => 1357000000,
     ];
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withJWTAuth(
-            payload: $payload,
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->jwt(
             key: $privateKey,
+            payload: $payload,
             algorithm: Algorithm::RS256
         );
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)
         ->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 --header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJleGFtcGxlLm9yZyIsImF1ZCI6ImV4YW1wbGUuY29tIiwiaWF0IjoxMzU2OTk5NTI0LCJuYmYiOjEzNTcwMDAwMDB9.fm0h0Ec3yp7S3JNBLeFa2owu4a91IXFJs8NPgBUxgKKSfd_-Mqes2zxuxmkYpmQDG936u739mIDZyG9KQm0ER5HB243MVbFZHcaC7VAIqmoCZ4dcS6yoJ1ltH6vdwc8o3xkYVEWKvLr8a7ck21u-pASWB_tpqM7XtIu7xyCZhfpmxTbhNyTgsJ1HN4fVYrHn2535qYsetOTps_zM2cgVRQYbkp1RovL-ZDsp3rMxzEiGQ7F80JXh2fsTHKlpPqAyF40GEXvCZa0MIoRa7g1pIjRtNLYgOgO94YsSRGB0VDDsLNdXzkjv0Ujfk_uqtD0IKgt7ffQzh8b8dUl8onXA_g' 'https://example.com/api'");
@@ -539,12 +452,13 @@ test('wget request builder generates wget command with asymmetric JWT', function
 
 test('wget request builder generates wget command with empty JWT key', function (): void {
 
-    $builder = $this->builder
-        ->url('https://example.com/api')
-        ->get()
-        ->withJWTAuth(payload: ['user' => 'test'], key: '');
+    $command = HttpCommand::get('https://example.com/api')
+        ->auth()->jwt(
+            key: '',
+            payload: ['user' => 'test']
+        );
 
-    $output = $builder->toWget();
+    $output = $command->toWget();
 
     expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api'");
 });

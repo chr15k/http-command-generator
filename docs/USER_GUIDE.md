@@ -34,29 +34,37 @@ HTTP CLI Generator is a PHP library that allows you to generate CLI commands for
 First, install the library using Composer:
 
 ```bash
-composer require chr15k/http-cli-generator
+composer require chr15k/http-command-generator
 ```
 
-Then, create a new builder instance:
+Then, create a new builder instance with the appropriate HTTP method:
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
-$builder = HttpRequestBuilder::create();
+// Create instances with specific HTTP methods
+$getRequest = CommandBuilder::get();
+$postRequest = CommandBuilder::post();
+$putRequest = CommandBuilder::put();
+$deleteRequest = CommandBuilder::delete();
+$patchRequest = CommandBuilder::patch();
+$headRequest = CommandBuilder::head();
+$optionsRequest = CommandBuilder::options();
 ```
 
 ## Request Methods
 
-You can specify the HTTP method for your request in two ways:
+You can specify the HTTP method when creating the builder or change it later:
 
 ```php
-// Using dedicated method helpers
-$builder->get()->url('https://api.example.com/users');
-$builder->post()->url('https://api.example.com/users');
-$builder->put()->url('https://api.example.com/users/1');
-$builder->delete()->url('https://api.example.com/users/1');
+// Create a builder with a specific HTTP method
+$builder = CommandBuilder::get()->url('https://api.example.com/users');
+$builder = CommandBuilder::post()->url('https://api.example.com/users');
+$builder = CommandBuilder::put()->url('https://api.example.com/users/1');
+$builder = CommandBuilder::delete()->url('https://api.example.com/users/1');
 
-// Using the generic method() method for any HTTP verb
+// Or change the method after creation
+$builder = CommandBuilder::get();
 $builder->method('PATCH')->url('https://api.example.com/users/1');
 ```
 
@@ -218,20 +226,18 @@ HTTP CLI Generator supports multiple command-line tools for making HTTP requests
 cURL is the default generator and can be explicitly specified using the `toCurl()` method:
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::get()
     ->url('https://api.example.com/users')
-    ->get()
     ->toCurl();
 ```
 
 You can also use the generic `to()` method:
 
 ```php
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::get()
     ->url('https://api.example.com/users')
-    ->get()
     ->to('curl');
 ```
 
@@ -240,11 +246,10 @@ $curl = HttpRequestBuilder::create()
 wget is an alternative command-line tool for making HTTP requests. Use the `toWget()` method to generate wget commands:
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
-$wget = HttpRequestBuilder::create()
+$wget = CommandBuilder::get()
     ->url('https://api.example.com/users')
-    ->get()
     ->toWget();
 
 // Output: wget --no-check-certificate --quiet --method GET --timeout=0 'https://api.example.com/users'
@@ -253,9 +258,8 @@ $wget = HttpRequestBuilder::create()
 You can also use the generic `to()` method:
 
 ```php
-$wget = HttpRequestBuilder::create()
+$wget = CommandBuilder::get()
     ->url('https://api.example.com/users')
-    ->get()
     ->to('wget');
 ```
 
@@ -271,9 +275,9 @@ $wget = HttpRequestBuilder::create()
 You can extend the library with your own command generators. For example:
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
-$customCommand = HttpRequestBuilder::create()
+$customCommand = CommandBuilder::create()
     ->url('https://api.example.com/users')
     ->get()
     ->to('myCustomGenerator');
@@ -284,10 +288,10 @@ $customCommand = HttpRequestBuilder::create()
 ### GET Request with Query Parameters
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
 // Using cURL
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::create()
     ->url('https://api.example.com/search?q=test&page=1')
     ->get()
     ->header('Accept', 'application/json')
@@ -295,7 +299,7 @@ $curl = HttpRequestBuilder::create()
     ->toCurl();
 
 // Using wget
-$wget = HttpRequestBuilder::create()
+$wget = CommandBuilder::create()
     ->url('https://api.example.com/search?q=test&page=1')
     ->get()
     ->header('Accept', 'application/json')
@@ -306,9 +310,9 @@ $wget = HttpRequestBuilder::create()
 ### POST Request with JSON Body and Authentication
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::create()
     ->url('https://api.example.com/users')
     ->post()
     ->withBasicAuth('username', 'password')
@@ -323,9 +327,9 @@ $curl = HttpRequestBuilder::create()
 ### File Upload with Multipart Form Data
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::create()
     ->url('https://api.example.com/upload')
     ->post()
     ->withApiKey('X-API-Key', 'your-api-key')
@@ -339,11 +343,10 @@ $curl = HttpRequestBuilder::create()
 ### PUT Request to Update a Resource
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::put()
     ->url('https://api.example.com/users/123')
-    ->put()
     ->withBearerToken('your-access-token')
     ->withJsonBody([
         'name' => 'John Updated',
@@ -355,12 +358,11 @@ $curl = HttpRequestBuilder::create()
 ### DELETE Request with JWT Authentication
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 use Chr15k\AuthGenerator\Enums\Algorithm;
 
-$curl = HttpRequestBuilder::create()
+$curl = CommandBuilder::delete()
     ->url('https://api.example.com/users/123')
-    ->delete()
     ->withJWTAuth(
         key: 'your-secret-key',
         payload: [
@@ -375,11 +377,10 @@ $curl = HttpRequestBuilder::create()
 ### DELETE Request with wget
 
 ```php
-use Chr15k\HttpCliGenerator\Builder\HttpRequestBuilder;
+use Chr15k\HttpCommand\Builder\CommandBuilder;
 
-$wget = HttpRequestBuilder::create()
+$wget = CommandBuilder::delete()
     ->url('https://api.example.com/users/123')
-    ->delete()
     ->withBearerToken('your-access-token')
     ->toWget();
 

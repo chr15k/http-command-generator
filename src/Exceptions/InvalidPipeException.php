@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Chr15k\HttpCliGenerator\Exceptions;
+namespace Chr15k\HttpCommand\Exceptions;
 
-use Exception;
+use DomainException;
 
-final class InvalidPipeException extends Exception
+/**
+ * @internal
+ */
+final class InvalidPipeException extends DomainException
 {
     //
 }

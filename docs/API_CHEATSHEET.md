@@ -8,13 +8,15 @@ Quick reference guide for the HTTP CLI Generator library.
 
 | Method | Description | Example |
 |--------|-------------|---------|
-| `create()` | Create a new builder instance | `HttpRequestBuilder::create()` |
+| `get()` | Create a new builder instance with GET method | `CommandBuilder::get()` |
+| `post()` | Create a new builder instance with POST method | `CommandBuilder::post()` |
+| `put()` | Create a new builder instance with PUT method | `CommandBuilder::put()` |
+| `patch()` | Create a new builder instance with PATCH method | `CommandBuilder::patch()` |
+| `delete()` | Create a new builder instance with DELETE method | `CommandBuilder::delete()` |
+| `head()` | Create a new builder instance with HEAD method | `CommandBuilder::head()` |
+| `options()` | Create a new builder instance with OPTIONS method | `CommandBuilder::options()` |
 | `url(string $url)` | Set the URL | `->url('https://api.example.com')` |
-| `method(string $method)` | Set HTTP method | `->method('PATCH')` |
-| `get()` | Set method to GET | `->get()` |
-| `post()` | Set method to POST | `->post()` |
-| `put()` | Set method to PUT | `->put()` |
-| `delete()` | Set method to DELETE | `->delete()` |
+| `method(string $method)` | Change HTTP method | `->method('PATCH')` |
 | `toCurl()` | Generate cURL command | `->toCurl()` |
 | `to(string $generator)` | Use specific generator | `->to('curl')` or `->to('wget')` |
 | `toCurl()` | Generate cURL command | `->toCurl()` |

@@ -2,16 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Chr15k\HttpCliGenerator\Pipeline\Pipes\Wget;
+namespace Chr15k\HttpCommand\Pipeline\Pipes\Wget;
 
-use Chr15k\HttpCliGenerator\Contracts\Pipe;
-use Chr15k\HttpCliGenerator\DataTransfer\Body\BinaryData;
-use Chr15k\HttpCliGenerator\DataTransfer\Body\FormUrlEncodedData;
-use Chr15k\HttpCliGenerator\DataTransfer\Body\JsonBodyData;
-use Chr15k\HttpCliGenerator\DataTransfer\Body\MultipartFormData;
-use Chr15k\HttpCliGenerator\DataTransfer\RequestData;
+use Chr15k\HttpCommand\Contracts\Pipe;
+use Chr15k\HttpCommand\DataTransfer\Body\BinaryData;
+use Chr15k\HttpCommand\DataTransfer\Body\FormUrlEncodedData;
+use Chr15k\HttpCommand\DataTransfer\Body\JsonBodyData;
+use Chr15k\HttpCommand\DataTransfer\Body\MultipartFormData;
+use Chr15k\HttpCommand\DataTransfer\RequestData;
+use Chr15k\HttpCommand\Utils\Url;
 use Closure;
 
+/**
+ * @internal
+ */
 final readonly class WgetBody implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
@@ -47,7 +51,7 @@ final readonly class WgetBody implements Pipe
             return;
         }
 
-        $query = http_build_query($decoded);
+        $query = Url::buildQuery($decoded, $data->encode);
 
         $data->output .= " --body-data '$query'";
     }

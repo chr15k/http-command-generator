@@ -1,5 +1,5 @@
 {
-    "name": "chr15k/http-cli-generator",
+    "name": "chr15k/http-command-generator",
     "description": "Generate HTTP CLI commands",
     "type": "library",
     "license": "MIT",
@@ -31,7 +31,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Chr15k\\HttpCliGenerator\\": "src/"
+            "Chr15k\\HttpCommand\\": "src/"
         }
     },
     "autoload-dev": {

@@ -7,7 +7,7 @@ namespace Chr15k\HttpCommand\Contracts;
 /**
  * @internal
  */
-interface AuthDataTransfer
+interface Builder
 {
     //
 }
