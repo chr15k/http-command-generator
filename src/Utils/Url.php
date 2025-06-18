@@ -59,7 +59,7 @@ final readonly class Url
         $updated = $existing->merge(params: $new->all());
         $updatedQueryString = $updated->toQueryString(encode: $encode);
 
-        // If parse_url() failed, return the original URL with the updated query string appended.
+        // We still want to output the URL even if parse_url() fails, so we handle that case.
         if ($parts === false) {
             return $url.'?'.$updatedQueryString;
         }
