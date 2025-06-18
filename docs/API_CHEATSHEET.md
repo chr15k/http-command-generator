@@ -8,21 +8,17 @@ Quick reference guide for the HTTP CLI Generator library.
 
 | Method | Description | Example |
 |--------|-------------|---------|
-| `get()` | Create a new builder instance with GET method | `CommandBuilder::get()` |
-| `post()` | Create a new builder instance with POST method | `CommandBuilder::post()` |
-| `put()` | Create a new builder instance with PUT method | `CommandBuilder::put()` |
-| `patch()` | Create a new builder instance with PATCH method | `CommandBuilder::patch()` |
-| `delete()` | Create a new builder instance with DELETE method | `CommandBuilder::delete()` |
-| `head()` | Create a new builder instance with HEAD method | `CommandBuilder::head()` |
-| `options()` | Create a new builder instance with OPTIONS method | `CommandBuilder::options()` |
+| `HttpCommand::get(string $url = '')` | Create a GET request | `HttpCommand::get('https://api.example.com')` |
+| `HttpCommand::post(string $url = '')` | Create a POST request | `HttpCommand::post('https://api.example.com')` |
+| `HttpCommand::put(string $url = '')` | Create a PUT request | `HttpCommand::put('https://api.example.com')` |
+| `HttpCommand::patch(string $url = '')` | Create a PATCH request | `HttpCommand::patch('https://api.example.com')` |
+| `HttpCommand::delete(string $url = '')` | Create a DELETE request | `HttpCommand::delete('https://api.example.com')` |
+| `HttpCommand::head(string $url = '')` | Create a HEAD request | `HttpCommand::head('https://api.example.com')` |
+| `HttpCommand::options(string $url = '')` | Create an OPTIONS request | `HttpCommand::options('https://api.example.com')` |
 | `url(string $url)` | Set the URL | `->url('https://api.example.com')` |
 | `method(string $method)` | Change HTTP method | `->method('PATCH')` |
 | `toCurl()` | Generate cURL command | `->toCurl()` |
-| `to(string $generator)` | Use specific generator | `->to('curl')` or `->to('wget')` |
-| `toCurl()` | Generate cURL command | `->toCurl()` |
 | `toWget()` | Generate wget command | `->toWget()` |
-| `availableGenerators()` | List available generators | `$builder->availableGenerators()` |
-| `registerGenerator(string $name, Generator $generator)` | Register custom generator | `->registerGenerator('httpie', new HttpieGenerator())` |
 
 ### Headers
 
@@ -31,26 +27,30 @@ Quick reference guide for the HTTP CLI Generator library.
 | `header(string $name, string $value)` | Add single header | `->header('Accept', 'application/json')` |
 | `headers(array $headers)` | Add multiple headers | `->headers(['Accept' => 'application/json', 'User-Agent' => 'MyApp/1.0'])` |
 
+### Query Parameters
+
+| Method | Description | Example |
+|--------|-------------|---------|
+| `query(string $name, string $value)` | Add single query parameter | `->query('page', '1')` |
+| `queries(array $queries)` | Add multiple query parameters | `->queries(['page' => '1', 'limit' => '10'])` |
+
 ### Authentication
 
 | Method | Description | Example |
 |--------|-------------|---------|
-| `auth(AuthDataTransfer $auth)` | Set auth with DTO | `->auth(new BasicAuthData('user', 'pass'))` |
-| `withApiKey(string $key, string $value, bool $inQuery = false)` | Add API key auth | `->withApiKey('X-API-Key', 'key123')` |
-| `withBasicAuth(string $username, string $password)` | Add Basic auth | `->withBasicAuth('user', 'pass')` |
-| `withDigestAuth(string $username, string $password, DigestAlgorithm $algorithm = DigestAlgorithm::MD5, string $realm = '', string $method = '', string $uri = '', string $nonce = '', string $nc = '', string $cnonce = '', string $qop = '')` | Add Digest auth | `->withDigestAuth('user', 'pass', DigestAlgorithm::MD5, 'example.com', 'GET', '/api')` |
-| `withBearerToken(string $token)` | Add Bearer token | `->withBearerToken('token123')` |
-| `withJWTAuth(string $key, array $payload = [], array $headers = [], Algorithm $algorithm = Algorithm::HS256, bool $secretBase64Encoded = false, string $headerPrefix = 'Bearer', bool $inQuery = false, string $queryKey = 'token')` | Add JWT auth | `->withJWTAuth('secret', ['user_id' => 123])` |
+| `auth()->basic(string $username, string $password)` | Add Basic auth | `->auth()->basic('user', 'pass')` |
+| `auth()->withBearerToken(string $token)` | Add Bearer token | `->auth()->withBearerToken('token123')` |
+| `auth()->apiKey(string $key, string $value, bool $inQuery = false)` | Add API key auth | `->auth()->apiKey('X-API-Key', 'key123')` |
+| `auth()->jwt(string $key = '', array $payload = [], array $headers = [], Algorithm $algorithm = Algorithm::HS256, bool $secretBase64Encoded = false, string $headerPrefix = 'Bearer', bool $inQuery = false, string $queryKey = 'token')` | Add JWT auth | `->auth()->jwt('secret', ['user_id' => 123])` |
+| `auth()->digest(...)` | Add Digest auth | `->auth()->digest('user', 'pass', DigestAlgorithm::MD5)` |
 
 ### Request Body
 
 | Method | Description | Example |
 |--------|-------------|---------|
-| `body(BodyDataTransfer $body)` | Set body with DTO | `->body(new JsonBodyData(['name' => 'John']))` |
-| `withJsonBody(array $data)` | Add JSON body | `->withJsonBody(['name' => 'John', 'age' => 30])` |
-| `withRawJsonBody(string $json)` | Add raw JSON body | `->withRawJsonBody('{"name":"John"}')` |
-| `withFormBody(array $data)` | Add form-urlencoded body | `->withFormBody(['name' => 'John', 'age' => 30])` |
-| `withMultipartBody(array $data)` | Add multipart form data | `->withMultipartBody(['file' => '@path/to/file'])` |
-| `withBinaryBody(string $filePath)` | Add binary file content | `->withBinaryBody('/path/to/file.bin')` |
+| `json(array\|string $data, bool $preserveAsRaw = false)` | Add JSON body | `->json(['name' => 'John', 'age' => 30])` |
+| `form(array $data)` | Add form-urlencoded body | `->form(['name' => 'John', 'age' => 30])` |
+| `multipart(array $data)` | Add multipart form data | `->multipart(['file' => '@path/to/file'])` |
+| `file(string $filePath)` | Add binary file content | `->file('/path/to/file.bin')` |
 
 

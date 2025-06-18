@@ -1,10 +1,6 @@
 # HTTP CLI Generator
 
-[![Latest Stable Version](https://poser.pugx.org/chr15k/http-c// Using a Bearer Token
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/protected-resource')
-    ->withBearerToken('your-access-token')
-    ->toCurl();erator/v)](https://packagist.org/packages/chr15k/http-command-generator) [![Total Downloads](https://poser.pugx.org/chr15k/http-command-generator/downloads)](https://packagist.org/packages/chr15k/http-command-generator) [![Latest Unstable Version](https://poser.pugx.org/chr15k/http-command-generator/v/unstable)](https://packagist.org/packages/chr15k/http-command-generator) [![License](https://poser.pugx.org/chr15k/http-command-generator/license)](https://packagist.org/packages/chr15k/http-command-generator) [![PHP Version Require](https://poser.pugx.org/chr15k/http-command-generator/require/php)](https://packagist.org/packages/chr15k/http-command-generator)
+[![Latest Stable Version](https://poser.pugx.org/chr15k/http-command-generator/v)](https://packagist.org/packages/chr15k/http-command-generator) [![Total Downloads](https://poser.pugx.org/chr15k/http-command-generator/downloads)](https://packagist.org/packages/chr15k/http-command-generator) [![Latest Unstable Version](https://poser.pugx.org/chr15k/http-command-generator/v/unstable)](https://packagist.org/packages/chr15k/http-command-generator) [![License](https://poser.pugx.org/chr15k/http-command-generator/license)](https://packagist.org/packages/chr15k/http-command-generator) [![PHP Version Require](https://poser.pugx.org/chr15k/http-command-generator/require/php)](https://packagist.org/packages/chr15k/http-command-generator)
 
 A PHP library for generating HTTP CLI commands with a fluent builder API.
 
@@ -19,28 +15,27 @@ composer require chr15k/http-command-generator
 ## Features
 
 - **Fluent Builder API**: Construct HTTP requests with a clean, chainable interface
-- **Multiple HTTP Methods**: Support for GET, POST, PUT, DELETE and custom methods
+- **Multiple HTTP Methods**: Support for GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS and custom methods
+- **Multiple Command Generators**: Generate cURL and wget commands from the same request definition
 - **Authentication Options**: Basic Auth, Bearer Token, API Key, JWT, and Digest Auth
 - **Body Formats**: JSON, form URL-encoded, multipart form data, and binary file data
-- **Zero External Dependencies**: Only requires chr15k/http-command-generator for advanced auth options
+- **Zero External Dependencies**: Only requires chr15k/php-auth-generator for advanced auth options
 
 ## Basic Usage
 
 ### Simple GET Request
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
 // Build a simple GET request with cURL
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/users')
+$curl = HttpCommand::get('https://api.example.com/users')
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/users'
 
 // Generate the same request with wget
-$wget = CommandBuilder::get()
-    ->url('https://api.example.com/users')
+$wget = HttpCommand::get('https://api.example.com/users')
     ->toWget();
 
 // Output: wget --no-check-certificate --quiet --method GET --timeout=0 'https://api.example.com/users'
@@ -49,12 +44,11 @@ $wget = CommandBuilder::get()
 ### POST Request with JSON Body
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
 // Build a POST request with JSON data using cURL
-$curl = CommandBuilder::post()
-    ->url('https://api.example.com/users')
-    ->withJsonBody([
+$curl = HttpCommand::post('https://api.example.com/users')
+    ->json([
         'name' => 'John Doe',
         'email' => 'john@example.com',
     ])
@@ -65,9 +59,8 @@ $curl = CommandBuilder::post()
 //  --data '{"name":"John Doe","email":"john@example.com"}'
 
 // Generate the same POST request using wget
-$wget = CommandBuilder::post()
-    ->url('https://api.example.com/users')
-    ->withJsonBody([
+$wget = HttpCommand::post('https://api.example.com/users')
+    ->json([
         'name' => 'John Doe',
         'email' => 'john@example.com',
     ])
@@ -84,88 +77,92 @@ $wget = CommandBuilder::post()
 #### Bearer Token Authentication
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-// Using a Bearer Token
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/protected-resource')
-    ->withBearerToken(token: 'your-access-token')
+// Using a Bearer Token with cURL
+$curl = HttpCommand::get('https://api.example.com/protected-resource')
+    ->auth()->withBearerToken('your-access-token')
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/protected-resource' \
 //  --header "Authorization: Bearer your-access-token"
+
+// Using a Bearer Token with wget
+$wget = HttpCommand::get('https://api.example.com/protected-resource')
+    ->auth()->withBearerToken('your-access-token')
+    ->toWget();
+
+// Output: wget --no-check-certificate --quiet --method GET --timeout=0 \
+//  --header "Authorization: Bearer your-access-token" \
+//  'https://api.example.com/protected-resource'
 ```
 
 #### Basic Authentication
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-// Using Basic Auth
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/protected-resource')
-    ->withBasicAuth(
-        username: 'username',
-        password: 'password'
-    )
+// Using Basic Auth with cURL
+$curl = HttpCommand::get('https://api.example.com/protected-resource')
+    ->auth()->basic('username', 'password')
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/protected-resource' \
 //  --header "Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ="
+
+// Using Basic Auth with wget
+$wget = HttpCommand::get('https://api.example.com/protected-resource')
+    ->auth()->basic('username', 'password')
+    ->toWget();
+
+// Output: wget --no-check-certificate --quiet --method GET --timeout=0 \
+//  --header "Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=" \
+//  'https://api.example.com/protected-resource'
 ```
 
 #### API Key Authentication
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-// Using an API Key in header
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/data')
-    ->withApiKey(
-        key: 'X-API-Key',
-        value: 'your-api-key'
-    )
+// Using an API Key in header with cURL
+$curl = HttpCommand::get('https://api.example.com/data')
+    ->auth()->apiKey('X-API-Key', 'your-api-key')
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/data' \
 //  --header "X-API-Key: your-api-key"
 
-// Using an API Key in query string
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/data')
-    ->withApiKey(
-        key: 'X-API-Key',
-        value: 'your-api-key',
-        inQuery: true
-    )
+// Using an API Key in query string with both generators
+$curl = HttpCommand::get('https://api.example.com/data')
+    ->auth()->apiKey('api_key', 'your-api-key', true)
     ->toCurl();
 
+$wget = HttpCommand::get('https://api.example.com/data')
+    ->auth()->apiKey('api_key', 'your-api-key', true)
+    ->toWget();
+
 // Output: curl --location --request GET 'https://api.example.com/data?api_key=your-api-key'
+// Output: wget --no-check-certificate --quiet --method GET --timeout=0 'https://api.example.com/data?api_key=your-api-key'
 ```
 
 #### Digest Authentication
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 use Chr15k\AuthGenerator\Enums\DigestAlgorithm;
 
 // Basic Digest Auth
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/protected-resource')
-    ->withDigestAuth(
-        username: 'username',
-        password: 'password'
-    )
+$curl = HttpCommand::get('https://api.example.com/protected-resource')
+    ->auth()->digest('username', 'password')
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/protected-resource' \
 //  --header 'Authorization: Digest username="username", realm="", nonce="", uri="", algorithm="MD5", response="..."'
 
 // Advanced Digest Auth with all parameters
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/protected-resource')
-    ->withDigestAuth(
+$curl = HttpCommand::get('https://api.example.com/protected-resource')
+    ->auth()->digest(
         username: 'username',
         password: 'password',
         algorithm: DigestAlgorithm::MD5,
@@ -180,10 +177,8 @@ $curl = CommandBuilder::get()
     ->toCurl();
 
 // Using Digest Auth with wget
-$wget = CommandBuilder::create()
-    ->url('https://api.example.com/protected-resource')
-    ->get()
-    ->withDigestAuth(
+$wget = HttpCommand::get('https://api.example.com/protected-resource')
+    ->auth()->digest(
         username: 'username',
         password: 'password',
         algorithm: DigestAlgorithm::MD5,
@@ -202,6 +197,49 @@ $wget = CommandBuilder::create()
 //  'https://api.example.com/protected-resource'
 ```
 
+### HTTP Methods
+
+The library supports all standard HTTP methods:
+
+```php
+use Chr15k\HttpCommand\HttpCommand;
+
+// Standard HTTP methods
+$get = HttpCommand::get('https://api.example.com/users');           // GET
+$post = HttpCommand::post('https://api.example.com/users');         // POST
+$put = HttpCommand::put('https://api.example.com/users/1');         // PUT
+$patch = HttpCommand::patch('https://api.example.com/users/1');     // PATCH
+$delete = HttpCommand::delete('https://api.example.com/users/1');   // DELETE
+$head = HttpCommand::head('https://api.example.com/users/1');       // HEAD
+$options = HttpCommand::options('https://api.example.com/users');   // OPTIONS
+
+// You can also set a custom method
+$custom = HttpCommand::get()->method('CONNECT')->url('https://api.example.com');
+```
+
+### Query Parameters
+
+```php
+use Chr15k\HttpCommand\HttpCommand;
+
+// Adding individual query parameters
+$curl = HttpCommand::get('https://api.example.com/search')
+    ->query('q', 'test')
+    ->query('page', '1')
+    ->toCurl();
+
+// Adding multiple query parameters at once
+$curl = HttpCommand::get('https://api.example.com/search')
+    ->queries([
+        'q' => 'test',
+        'page' => '1',
+        'limit' => '10'
+    ])
+    ->toCurl();
+
+// Output: curl --location --request GET 'https://api.example.com/search?q=test&page=1&limit=10'
+```
+
 ## Advanced Usage
 
 ### Working with Request Bodies
@@ -209,12 +247,11 @@ $wget = CommandBuilder::create()
 #### Form URL-encoded Data
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-// Form URL-encoded data
-$curl = CommandBuilder::post()
-    ->url('https://api.example.com/form')
-    ->withFormBody([
+// Form URL-encoded data with cURL
+$curl = HttpCommand::post('https://api.example.com/form')
+    ->form([
         'name' => 'John Doe',
         'email' => 'john@example.com',
     ])
@@ -224,17 +261,29 @@ $curl = CommandBuilder::post()
 //  --header "Content-Type: application/x-www-form-urlencoded" \
 //  --data-urlencode "name=John Doe" \
 //  --data-urlencode "email=john@example.com"
+
+// Form URL-encoded data with wget
+$wget = HttpCommand::post('https://api.example.com/form')
+    ->form([
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+    ])
+    ->toWget();
+
+// Output: wget --no-check-certificate --quiet --method POST --timeout=0 \
+//  --header 'Content-Type: application/x-www-form-urlencoded' \
+//  --body-data 'name=John+Doe&email=john%40example.com' \
+//  'https://api.example.com/form'
 ```
 
 #### Multipart Form Data
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-// Multipart form data (useful for file uploads)
-$curl = CommandBuilder::post()
-    ->url('https://api.example.com/upload')
-    ->withMultipartBody([
+// Multipart form data (useful for file uploads) with cURL
+$curl = HttpCommand::post('https://api.example.com/upload')
+    ->multipart([
         'file' => '@/path/to/file.jpg',
         'name' => 'Profile Photo',
     ])
@@ -243,31 +292,50 @@ $curl = CommandBuilder::post()
 // Output: curl --location --request POST 'https://api.example.com/upload' \
 //  --form "file=@/path/to/file.jpg" \
 //  --form "name=Profile Photo"
+
+// Note: wget doesn't support multipart form data natively like cURL does
+// Instead, it converts to form data:
+$wget = HttpCommand::post('https://api.example.com/upload')
+    ->multipart([
+        'name' => 'Profile Photo',
+    ])
+    ->toWget();
+
+// Output: wget --no-check-certificate --quiet --method POST --timeout=0 \
+//  --body-data 'name=Profile+Photo' \
+//  'https://api.example.com/upload'
 ```
 
 #### Binary Data
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-// Send binary file content
-$curl = CommandBuilder::post()
-    ->url('https://api.example.com/upload-binary')
-    ->withBinaryBody('/path/to/file.bin')
+// Send binary file content with cURL
+$curl = HttpCommand::post('https://api.example.com/upload-binary')
+    ->file('/path/to/file.bin')
     ->toCurl();
 
 // Output: curl --location --request POST 'https://api.example.com/upload-binary' \
 //  --data-binary '@/path/to/file.bin'
+
+// Send binary file content with wget
+$wget = HttpCommand::post('https://api.example.com/upload-binary')
+    ->file('/path/to/file.bin')
+    ->toWget();
+
+// Output: wget --no-check-certificate --quiet --method POST --timeout=0 \
+//  --body-file='/path/to/file.bin' \
+//  'https://api.example.com/upload-binary'
 ```
 
 ### Custom Request Headers
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-// Adding custom headers
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/data')
+// Adding custom headers with cURL
+$curl = HttpCommand::get('https://api.example.com/data')
     ->header('Accept', 'application/json')
     ->header('Cache-Control', 'no-cache')
     ->toCurl();
@@ -276,9 +344,19 @@ $curl = CommandBuilder::get()
 //  --header "Accept: application/json" \
 //  --header "Cache-Control: no-cache"
 
+// Adding custom headers with wget
+$wget = HttpCommand::get('https://api.example.com/data')
+    ->header('Accept', 'application/json')
+    ->header('Cache-Control', 'no-cache')
+    ->toWget();
+
+// Output: wget --no-check-certificate --quiet --method GET --timeout=0 \
+//  --header "Accept: application/json" \
+//  --header "Cache-Control: no-cache" \
+//  'https://api.example.com/data'
+
 // Alternative way to add multiple headers
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/data')
+$curl = HttpCommand::get('https://api.example.com/data')
     ->headers([
         'Accept' => 'application/json',
         'Cache-Control' => 'no-cache',
@@ -286,6 +364,28 @@ $curl = CommandBuilder::get()
     ])
     ->toCurl();
 ```
+
+## Command Generators
+
+HTTP CLI Generator supports two command-line tools for making HTTP requests:
+
+### cURL Generator (Default)
+
+cURL is the most widely used command-line tool for HTTP requests and is the default generator:
+
+```php
+$curl = HttpCommand::get('https://api.example.com/users')->toCurl();
+```
+
+### wget Generator
+
+wget is an alternative command-line tool that's commonly available on Unix-like systems:
+
+```php
+$wget = HttpCommand::get('https://api.example.com/users')->toWget();
+```
+
+Both generators support the same API and features, but have different output formats and capabilities. wget doesn't support all features that cURL does (like native multipart form data), but provides a good alternative for basic HTTP operations.
 
 ## Documentation
 

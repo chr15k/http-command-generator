@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCommand\Collections;
 
+use Chr15k\HttpCommand\Contracts\Collection;
+
 /**
  * @internal
  */
-final class HttpParameterCollection
+final class HttpParameterCollection implements Collection
 {
     /**
      * @var array<string, array<int, string>>

@@ -22,8 +22,8 @@ This guide provides comprehensive examples of how to use the HTTP CLI Generator 
 - [Command Generators](#command-generators)
   - [cURL Generator](#curl-generator)
   - [wget Generator](#wget-generator)
-- [Extending with Custom Generators](#extending-with-custom-generators)
 - [Full Examples](#full-examples)
+- [Query Parameters](#query-parameters)
 
 ## Introduction
 
@@ -37,34 +37,34 @@ First, install the library using Composer:
 composer require chr15k/http-command-generator
 ```
 
-Then, create a new builder instance with the appropriate HTTP method:
+Then, create a new request instance with the appropriate HTTP method:
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
 // Create instances with specific HTTP methods
-$getRequest = CommandBuilder::get();
-$postRequest = CommandBuilder::post();
-$putRequest = CommandBuilder::put();
-$deleteRequest = CommandBuilder::delete();
-$patchRequest = CommandBuilder::patch();
-$headRequest = CommandBuilder::head();
-$optionsRequest = CommandBuilder::options();
+$getRequest = HttpCommand::get('https://api.example.com/users');
+$postRequest = HttpCommand::post('https://api.example.com/users');
+$putRequest = HttpCommand::put('https://api.example.com/users/1');
+$deleteRequest = HttpCommand::delete('https://api.example.com/users/1');
+$patchRequest = HttpCommand::patch('https://api.example.com/users/1');
+$headRequest = HttpCommand::head('https://api.example.com/users/1');
+$optionsRequest = HttpCommand::options('https://api.example.com/users');
 ```
 
 ## Request Methods
 
-You can specify the HTTP method when creating the builder or change it later:
+You can specify the HTTP method when creating the request or change it later:
 
 ```php
-// Create a builder with a specific HTTP method
-$builder = CommandBuilder::get()->url('https://api.example.com/users');
-$builder = CommandBuilder::post()->url('https://api.example.com/users');
-$builder = CommandBuilder::put()->url('https://api.example.com/users/1');
-$builder = CommandBuilder::delete()->url('https://api.example.com/users/1');
+// Create a request with a specific HTTP method and URL
+$builder = HttpCommand::get('https://api.example.com/users');
+$builder = HttpCommand::post('https://api.example.com/users');
+$builder = HttpCommand::put('https://api.example.com/users/1');
+$builder = HttpCommand::delete('https://api.example.com/users/1');
 
 // Or change the method after creation
-$builder = CommandBuilder::get();
+$builder = HttpCommand::get();
 $builder->method('PATCH')->url('https://api.example.com/users/1');
 ```
 
@@ -91,7 +91,7 @@ $builder->headers([
 Add a Bearer token to your request:
 
 ```php
-$builder->withBearerToken('your-access-token');
+$builder->auth()->withBearerToken('your-access-token');
 ```
 
 This will add the `Authorization: Bearer your-access-token` header to your request.
@@ -101,7 +101,7 @@ This will add the `Authorization: Bearer your-access-token` header to your reque
 Add Basic authentication to your request:
 
 ```php
-$builder->withBasicAuth('username', 'password');
+$builder->auth()->basic('username', 'password');
 ```
 
 This will encode the credentials and add the `Authorization: Basic <encoded-credentials>` header.
@@ -112,10 +112,10 @@ Add an API key to your request:
 
 ```php
 // In the header
-$builder->withApiKey('X-API-Key', 'your-api-key');
+$builder->auth()->apiKey('X-API-Key', 'your-api-key');
 
 // Or in the query string
-$builder->withApiKey('api_key', 'your-api-key', true);
+$builder->auth()->apiKey('api_key', 'your-api-key', true);
 ```
 
 ### JWT Authentication
@@ -125,18 +125,41 @@ Add JWT authentication to your request:
 ```php
 use Chr15k\AuthGenerator\Enums\Algorithm;
 
-$builder->withJWTAuth(
+// Basic JWT with default settings
+$builder->auth()->jwt(
     key: 'your-secret-key',
     payload: [
         'user_id' => 123,
         'role' => 'admin'
+    ]
+);
+
+// Advanced JWT with custom algorithm and header prefix
+$builder->auth()->jwt(
+    key: 'your-secret-key',
+    payload: [
+        'user_id' => 123,
+        'role' => 'admin',
+        'exp' => time() + 3600  // 1 hour expiration
+    ],
+    headers: [
+        'typ' => 'JWT',
+        'alg' => 'HS256'
     ],
     algorithm: Algorithm::HS256,
     headerPrefix: 'Bearer'
 );
+
+// JWT in query string instead of header
+$builder->auth()->jwt(
+    key: 'your-secret-key',
+    payload: ['user_id' => 123],
+    inQuery: true,
+    queryKey: 'jwt_token'
+);
 ```
 
-This will generate a JWT and add it as a Bearer token in the Authorization header.
+This will generate a JWT and add it as a Bearer token in the Authorization header (or as a query parameter if specified).
 
 ### Digest Authentication
 
@@ -146,13 +169,10 @@ Add Digest authentication to your request. Digest authentication can be used wit
 use Chr15k\AuthGenerator\Enums\DigestAlgorithm;
 
 // Basic usage with only username and password
-$builder->withDigestAuth(
-    username: 'username',
-    password: 'password'
-);
+$builder->auth()->digest('username', 'password');
 
 // Advanced usage with all parameters
-$builder->withDigestAuth(
+$builder->auth()->digest(
     username: 'username',
     password: 'password',
     algorithm: DigestAlgorithm::MD5, // Default is MD5
@@ -176,13 +196,13 @@ Add a JSON body to your request:
 
 ```php
 // Using an array that will be converted to JSON
-$builder->withJsonBody([
+$builder->json([
     'name' => 'John Doe',
     'email' => 'john@example.com'
 ]);
 
 // Using raw JSON
-$builder->withRawJsonBody('{"name":"John Doe","email":"john@example.com"}');
+$builder->json('{"name":"John Doe","email":"john@example.com"}', true);
 ```
 
 ### Form URL-encoded
@@ -190,7 +210,7 @@ $builder->withRawJsonBody('{"name":"John Doe","email":"john@example.com"}');
 Add form URL-encoded data to your request:
 
 ```php
-$builder->withFormBody([
+$builder->form([
     'name' => 'John Doe',
     'email' => 'john@example.com'
 ]);
@@ -201,7 +221,7 @@ $builder->withFormBody([
 Add multipart form data to your request (useful for file uploads):
 
 ```php
-$builder->withMultipartBody([
+$builder->multipart([
     'profile_picture' => '@/path/to/image.jpg',
     'name' => 'John Doe'
 ]);
@@ -212,7 +232,7 @@ $builder->withMultipartBody([
 Add binary file data to your request:
 
 ```php
-$builder->withBinaryBody('/path/to/file.bin');
+$builder->file('/path/to/file.bin');
 ```
 
 This sends the raw binary content of the file without any additional encoding.
@@ -226,19 +246,10 @@ HTTP CLI Generator supports multiple command-line tools for making HTTP requests
 cURL is the default generator and can be explicitly specified using the `toCurl()` method:
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/users')
+$curl = HttpCommand::get('https://api.example.com/users')
     ->toCurl();
-```
-
-You can also use the generic `to()` method:
-
-```php
-$curl = CommandBuilder::get()
-    ->url('https://api.example.com/users')
-    ->to('curl');
 ```
 
 ### wget Generator
@@ -246,77 +257,52 @@ $curl = CommandBuilder::get()
 wget is an alternative command-line tool for making HTTP requests. Use the `toWget()` method to generate wget commands:
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-$wget = CommandBuilder::get()
-    ->url('https://api.example.com/users')
+$wget = HttpCommand::get('https://api.example.com/users')
     ->toWget();
 
 // Output: wget --no-check-certificate --quiet --method GET --timeout=0 'https://api.example.com/users'
 ```
 
-You can also use the generic `to()` method:
-
-```php
-$wget = CommandBuilder::get()
-    ->url('https://api.example.com/users')
-    ->to('wget');
-```
-
 #### wget specific characteristics
 
-- Uses `--body-data` for request bodies
+- Uses `--body-data` for request bodies (JSON, form data)
+- Uses `--body-file` for binary file uploads
 - Uses `--method` to specify HTTP methods
 - Sets default timeout to 0 (--timeout=0)
 - Uses `--no-check-certificate` and `--quiet` by default
-
-## Extending with Custom Generators
-
-You can extend the library with your own command generators. For example:
-
-```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
-
-$customCommand = CommandBuilder::create()
-    ->url('https://api.example.com/users')
-    ->get()
-    ->to('myCustomGenerator');
-```
+- Converts multipart form data to regular form data (wget limitation)
+- Supports all authentication methods the same as cURL
 
 ## Full Examples
 
 ### GET Request with Query Parameters
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
 // Using cURL
-$curl = CommandBuilder::create()
-    ->url('https://api.example.com/search?q=test&page=1')
-    ->get()
+$curl = HttpCommand::get('https://api.example.com/search?q=test&page=1')
     ->header('Accept', 'application/json')
-    ->withBearerToken('your-access-token')
+    ->auth()->withBearerToken('your-access-token')
     ->toCurl();
 
 // Using wget
-$wget = CommandBuilder::create()
-    ->url('https://api.example.com/search?q=test&page=1')
-    ->get()
+$wget = HttpCommand::get('https://api.example.com/search?q=test&page=1')
     ->header('Accept', 'application/json')
-    ->withBearerToken('your-access-token')
+    ->auth()->withBearerToken('your-access-token')
     ->toWget();
 ```
 
 ### POST Request with JSON Body and Authentication
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-$curl = CommandBuilder::create()
-    ->url('https://api.example.com/users')
-    ->post()
-    ->withBasicAuth('username', 'password')
-    ->withJsonBody([
+$curl = HttpCommand::post('https://api.example.com/users')
+    ->auth()->basic('username', 'password')
+    ->json([
         'name' => 'John Doe',
         'email' => 'john@example.com',
         'role' => 'user'
@@ -327,13 +313,11 @@ $curl = CommandBuilder::create()
 ### File Upload with Multipart Form Data
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-$curl = CommandBuilder::create()
-    ->url('https://api.example.com/upload')
-    ->post()
-    ->withApiKey('X-API-Key', 'your-api-key')
-    ->withMultipartBody([
+$curl = HttpCommand::post('https://api.example.com/upload')
+    ->auth()->apiKey('X-API-Key', 'your-api-key')
+    ->multipart([
         'file' => '@/path/to/file.pdf',
         'description' => 'My important document'
     ])
@@ -343,12 +327,11 @@ $curl = CommandBuilder::create()
 ### PUT Request to Update a Resource
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-$curl = CommandBuilder::put()
-    ->url('https://api.example.com/users/123')
-    ->withBearerToken('your-access-token')
-    ->withJsonBody([
+$curl = HttpCommand::put('https://api.example.com/users/123')
+    ->auth()->withBearerToken('your-access-token')
+    ->json([
         'name' => 'John Updated',
         'email' => 'john.updated@example.com'
     ])
@@ -358,12 +341,11 @@ $curl = CommandBuilder::put()
 ### DELETE Request with JWT Authentication
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 use Chr15k\AuthGenerator\Enums\Algorithm;
 
-$curl = CommandBuilder::delete()
-    ->url('https://api.example.com/users/123')
-    ->withJWTAuth(
+$curl = HttpCommand::delete('https://api.example.com/users/123')
+    ->auth()->jwt(
         key: 'your-secret-key',
         payload: [
             'user_id' => 456,
@@ -377,14 +359,33 @@ $curl = CommandBuilder::delete()
 ### DELETE Request with wget
 
 ```php
-use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\HttpCommand;
 
-$wget = CommandBuilder::delete()
-    ->url('https://api.example.com/users/123')
-    ->withBearerToken('your-access-token')
+$wget = HttpCommand::delete('https://api.example.com/users/123')
+    ->auth()->withBearerToken('your-access-token')
     ->toWget();
 
 // Output: wget --no-check-certificate --quiet --method DELETE --timeout=0 \
 //   --header "Authorization: Bearer your-access-token" \
 //   'https://api.example.com/users/123'
 ```
+
+## Query Parameters
+
+Add query parameters to your request:
+
+```php
+// Add a single query parameter
+$builder->query('page', '1');
+
+// Add multiple query parameters
+$builder->queries([
+    'page' => '1',
+    'limit' => '10',
+    'sort' => 'name'
+]);
+```
+
+Query parameters will be automatically URL-encoded and appended to the URL.
+
+## Authentication
