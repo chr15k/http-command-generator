@@ -25,24 +25,59 @@ jobs:
       with:
         php-version: 8.2
         coverage: xdebug
+        ini-values: opcache.enable=0
 
     - name: Cache Composer packages
       id: composer-cache
       uses: actions/cache@v3
       with:
         path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}-v2
         restore-keys: |
-          ${{ runner.os }}-php-
+          ${{ runner.os }}-php-v2
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      run: |
+        composer clear-cache
+        composer install --prefer-dist --no-progress
 
     - name: Generate optimized autoloader
       run: composer dump-autoload --optimize
 
     - name: Validate installed packages
-      run: composer show chr15k/php-auth-generator
+      run: |
+        composer show chr15k/php-auth-generator
+        echo "Checking git commit hash:"
+        cd vendor/chr15k/php-auth-generator && git log --oneline -1 || echo "Not a git repository"
+
+    - name: Debug DigestAuthBuilder class
+      run: |
+        echo "Checking if DigestAuthBuilder file exists:"
+        ls -la vendor/chr15k/php-auth-generator/src/Builders/DigestAuthBuilder.php
+        echo "Checking for nc method in DigestAuthBuilder:"
+        grep -n "function nc(" vendor/chr15k/php-auth-generator/src/Builders/DigestAuthBuilder.php || echo "nc method not found"
+        echo "Checking class methods with reflection:"
+        php -r "
+        require_once 'vendor/autoload.php';
+        \$reflection = new ReflectionClass('Chr15k\\AuthGenerator\\Builders\\DigestAuthBuilder');
+        \$methods = \$reflection->getMethods(ReflectionMethod::IS_PUBLIC);
+        echo 'Available methods: ';
+        foreach (\$methods as \$method) {
+            echo \$method->getName() . ', ';
+        }
+        echo PHP_EOL;
+        "
+        echo "Testing the exact method call:"
+        php -r "
+        require_once 'vendor/autoload.php';
+        use Chr15k\\AuthGenerator\\AuthGenerator;
+        try {
+            \$builder = AuthGenerator::digestAuth()->nc('test');
+            echo 'nc() method call successful' . PHP_EOL;
+        } catch (Error \$e) {
+            echo 'Error calling nc(): ' . \$e->getMessage() . PHP_EOL;
+        }
+        "
 
     - name: Run test suite
       run: composer test
