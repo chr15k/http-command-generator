@@ -81,6 +81,69 @@ test('wget request builder generates wget deletion command', function (): void {
 });
 
 // ======================================================================
+// Query Parameters Tests
+// ======================================================================
+
+test('curl request builder generates curl command with query parameters', function (): void {
+
+    $command = HttpCommand::get('https://example.com/api')
+        ->query('param1', 'value1')
+        ->query('param2', 'value2');
+
+    $output = $command->toWget();
+
+    expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api?param1=value1&param2=value2'");
+});
+
+test('curl request builder generates curl command with duplicate key query parameters', function (): void {
+
+    $command = HttpCommand::get('https://example.com/api')
+        ->query('param', 'value1')
+        ->query('param', 'value2');
+
+    $output = $command->toWget();
+
+    expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api?param=value1&param=value2'");
+});
+
+test('curl request builder generates curl command with query parameters and custom headers', function (): void {
+
+    $command = HttpCommand::get('https://example.com/api')
+        ->query('param1', 'value1')
+        ->query('param2', 'value2')
+        ->header('Accept', 'application/json');
+
+    $output = $command->toWget();
+
+    expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 --header \"Accept: application/json\" 'https://example.com/api?param1=value1&param2=value2'");
+});
+
+test('curl request builder generates curl command with encoded query parameters', function (): void {
+
+    $command = HttpCommand::get('https://example.com/api')
+        ->query('param1', 'value with spaces')
+        ->query('param2', 'value&with=special#chars')
+        ->query('param3', 'value with spaces and & special chars')
+        ->encodeQuery();
+
+    $output = $command->toWget();
+
+    expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api?param1=value%20with%20spaces&param2=value%26with%3Dspecial%23chars&param3=value%20with%20spaces%20and%20%26%20special%20chars'");
+});
+
+test('curl request builder generates curl command with no encoding and special characters', function (): void {
+
+    $command = HttpCommand::get('https://example.com/api')
+        ->query('param1', 'value with spaces')
+        ->query('param2', 'value&with=special#chars')
+        ->query('param3', 'value with spaces and & special chars');
+
+    $output = $command->toWget();
+
+    expect($output)->toBe("wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api?param1=value with spaces&param2=value&with=special#chars&param3=value with spaces and & special chars'");
+});
+
+// ======================================================================
 // Body data Tests
 // ======================================================================
 

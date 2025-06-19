@@ -33,8 +33,6 @@ final class HttpCommand
             ));
         }
 
-        return (new CommandBuilder)
-            ->url($url)
-            ->method($method);
+        return (new CommandBuilder)->url($url)->method($method);
     }
 }

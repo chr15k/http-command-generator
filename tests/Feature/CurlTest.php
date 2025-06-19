@@ -58,7 +58,7 @@ test('curl request builder generates curl command with headers method', function
     expect($output)->toBe("curl --location --request GET 'https://example.com/api' --header \"Authorization: Bearer token\" --header \"Accept: application/json\" --header \"X-Custom-Header: CustomValue\"");
 });
 
-test('curl request builder generates curl command with query parameters', function (): void {
+test('curl request builder generates curl command with query parameters included in URL', function (): void {
 
     $command = HttpCommand::get('https://example.com/api?param1=value1&param2=value2');
 
@@ -110,6 +110,69 @@ test('curl request builder generates curl command with custom parameters and aut
     $output = $command->toCurl();
 
     expect($output)->toBe("curl --location --request GET 'https://example.com/api?param1=value1&param2=value2&token=pass' --header \"Accept: application/json\"");
+});
+
+// ======================================================================
+// Query Parameters Tests
+// ======================================================================
+
+test('curl request builder generates curl command with query parameters', function (): void {
+
+    $command = HttpCommand::get('https://example.com/api')
+        ->query('param1', 'value1')
+        ->query('param2', 'value2');
+
+    $output = $command->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api?param1=value1&param2=value2'");
+});
+
+test('curl request builder generates curl command with duplicate key query parameters', function (): void {
+
+    $command = HttpCommand::get('https://example.com/api')
+        ->query('param', 'value1')
+        ->query('param', 'value2');
+
+    $output = $command->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api?param=value1&param=value2'");
+});
+
+test('curl request builder generates curl command with query parameters and custom headers', function (): void {
+
+    $command = HttpCommand::get('https://example.com/api')
+        ->query('param1', 'value1')
+        ->query('param2', 'value2')
+        ->header('Accept', 'application/json');
+
+    $output = $command->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api?param1=value1&param2=value2' --header \"Accept: application/json\"");
+});
+
+test('curl request builder generates curl command with encoded query parameters', function (): void {
+
+    $command = HttpCommand::get('https://example.com/api')
+        ->query('param1', 'value with spaces')
+        ->query('param2', 'value&with=special#chars')
+        ->query('param3', 'value with spaces and & special chars')
+        ->encodeQuery();
+
+    $output = $command->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api?param1=value%20with%20spaces&param2=value%26with%3Dspecial%23chars&param3=value%20with%20spaces%20and%20%26%20special%20chars'");
+});
+
+test('curl request builder generates curl command with no encoding and special characters', function (): void {
+
+    $command = HttpCommand::get('https://example.com/api')
+        ->query('param1', 'value with spaces')
+        ->query('param2', 'value&with=special#chars')
+        ->query('param3', 'value with spaces and & special chars');
+
+    $output = $command->toCurl();
+
+    expect($output)->toBe("curl --location --request GET 'https://example.com/api?param1=value with spaces&param2=value&with=special#chars&param3=value with spaces and & special chars'");
 });
 
 // ======================================================================

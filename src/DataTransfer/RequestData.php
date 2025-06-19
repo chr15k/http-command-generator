@@ -24,7 +24,7 @@ final class RequestData
         public readonly ?BodyDataTransfer $body = null,
         public readonly ?AuthDataTransfer $auth = null,
         public string $output = '',
-        public readonly bool $encode = true
+        public readonly bool $encodeQuery = false
     ) {
         //
     }

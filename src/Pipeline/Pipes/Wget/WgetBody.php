@@ -51,7 +51,7 @@ final readonly class WgetBody implements Pipe
             return;
         }
 
-        $query = Url::buildQuery($decoded, $data->encode);
+        $query = Url::buildQuery($decoded, $data->encodeQuery);
 
         $data->output .= " --body-data '$query'";
     }

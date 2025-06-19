@@ -22,7 +22,7 @@ final readonly class CommonUrl implements Pipe
     {
         $params = $this->mergeAllQueryParameters($data);
 
-        $url = Url::mergeQuery($data->url, $params, $data->encode);
+        $url = Url::mergeQuery($data->url, $params, $data->encodeQuery);
 
         $data->output .= " '{$url}'";
 

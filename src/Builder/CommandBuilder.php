@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCommand\Builder;
 
+use Chr15k\HttpCommand\Collections\HttpParameterCollection;
 use Chr15k\HttpCommand\Contracts\AuthDataTransfer;
 use Chr15k\HttpCommand\Contracts\BodyDataTransfer;
 use Chr15k\HttpCommand\Contracts\Builder;
@@ -33,6 +34,8 @@ final class CommandBuilder implements Builder
     private ?AuthDataTransfer $auth = null;
 
     private ?BodyDataTransfer $body = null;
+
+    private bool $encodeQuery = false;
 
     public function toCurl(): string
     {
@@ -90,16 +93,21 @@ final class CommandBuilder implements Builder
     /**
      * @param  array<string, string>  $headers
      */
-    public function queries(array $headers): self
+    public function queries(array $queries): self
     {
-        $this->queries = array_merge($this->queries, $headers);
+        $this->queries = array_merge_recursive($this->queries, $queries);
 
         return $this;
     }
 
     public function query(string $name, string $value): self
     {
-        $this->queries[$name] = $value;
+        $collection = new HttpParameterCollection;
+        $updated = $collection
+            ->merge(params: $this->queries)
+            ->add(key: $name, value: $value);
+
+        $this->queries = $updated->all();
 
         return $this;
     }
@@ -140,6 +148,13 @@ final class CommandBuilder implements Builder
         return $this->body(new BinaryData(filePath: $filePath));
     }
 
+    public function encodeQuery(bool $encode = true): self
+    {
+        $this->encodeQuery = $encode;
+
+        return $this;
+    }
+
     private function toRequestData(): RequestData
     {
         return new RequestData(
@@ -148,7 +163,8 @@ final class CommandBuilder implements Builder
             headers: $this->headers,
             queries: $this->queries,
             auth: $this->auth,
-            body: $this->body
+            body: $this->body,
+            encodeQuery: $this->encodeQuery
         );
     }
 }
