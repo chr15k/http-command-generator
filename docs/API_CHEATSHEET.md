@@ -32,7 +32,7 @@ Quick reference guide for the HTTP Command Generator library.
 | Method | Description | Example |
 |--------|-------------|---------|
 | `query(string $name, string $value)` | Add single query parameter (chainable) | `->query('page', '1')->query('limit', '10')` |
-| `encodeQuery(bool $encode = true)` | Enable/disable query parameter encoding | `->encodeQuery(false)` |
+| `encodeQuery(bool $encode = true)` | Enable/disable query parameter encoding (default: disabled) | `->encodeQuery()` |
 
 ### Authentication
 
@@ -106,16 +106,16 @@ HttpCommand::get('https://api.example.com/data')
 
 ### Query Parameter Encoding
 ```php
-// By default, query parameters are URL-encoded
+// By default, query parameters are NOT URL-encoded
 HttpCommand::get('https://api.example.com')
     ->query('filter', 'status:active OR type:premium')
     ->toCurl();
-// Results in: ?filter=status%3Aactive+OR+type%3Apremium
+// Results in: ?filter=status:active OR type:premium
 
-// Disable encoding to use pre-encoded values
+// Enable encoding to URL-encode query parameters
 HttpCommand::get('https://api.example.com')
-    ->query('filter', 'status%3Aactive+OR+type%3Apremium')
-    ->encodeQuery(false)
+    ->query('filter', 'status:active OR type:premium')
+    ->encodeQuery()
     ->toCurl();
 // Results in: ?filter=status%3Aactive+OR+type%3Apremium
 ```

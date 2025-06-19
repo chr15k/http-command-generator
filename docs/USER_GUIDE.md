@@ -455,25 +455,25 @@ $curl = HttpCommand::get('https://api.example.com/search')
 
 ### Query Parameter Encoding
 
-By default, query parameters are URL-encoded. You can control this behavior:
+By default, query parameters are NOT URL-encoded. You can control this behavior:
 
 ```php
-// Default behavior - query parameters are encoded
+// Default behavior - query parameters are NOT encoded
 $builder->query('search', 'hello world')
+        ->toCurl();
+// Results in: ?search=hello world
+
+// Enable encoding to URL-encode query parameters
+$builder->query('search', 'hello world')
+        ->encodeQuery()
         ->toCurl();
 // Results in: ?search=hello+world
 
-// Disable encoding if you need to pass pre-encoded parameters
-$builder->query('search', 'hello%20world')
-        ->encodeQuery(false)
-        ->toCurl();
-// Results in: ?search=hello%20world
-
-// Re-enable encoding (it's enabled by default)
-$builder->encodeQuery(true);
+// Disable encoding again (it's disabled by default)
+$builder->encodeQuery(false);
 ```
 
-Query parameters will be automatically URL-encoded (unless disabled) and appended to the URL.
+Query parameters will NOT be automatically URL-encoded by default. Use `encodeQuery()` to enable encoding when needed.
 
 ## Advanced Method Chaining Examples
 
@@ -594,7 +594,7 @@ $debugRequest = HttpCommand::post('https://staging-api.example.com/test')
         'environment' => 'staging',
         'timestamp' => date('c')
     ])
-    ->encodeQuery(false) // Don't encode query parameters
+    ->// Don't encode query parameters (default)
     ->toCurl();
 ```
 

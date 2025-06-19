@@ -13,7 +13,7 @@ use Chr15k\HttpCommand\Contracts\BodyDataTransfer;
 final class RequestData
 {
     /**
-     * @param  array<string, string>  $headers
+     * @param  array<string, array<int, string>|string>  $headers
      * @param  array<string, array<int, string>|string>  $queries
      */
     public function __construct(
