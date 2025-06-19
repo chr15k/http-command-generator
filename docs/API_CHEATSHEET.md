@@ -39,7 +39,7 @@ Quick reference guide for the HTTP Command Generator library.
 | Method | Description | Example |
 |--------|-------------|---------|
 | `auth()->basic(string $username, string $password)` | Add Basic auth | `->auth()->basic('user', 'pass')` |
-| `auth()->withBearerToken(string $token)` | Add Bearer token | `->auth()->withBearerToken('token123')` |
+| `auth()->bearerToken(string $token)` | Add Bearer token | `->auth()->bearerToken('token123')` |
 | `auth()->apiKey(string $key, string $value, bool $inQuery = false)` | Add API key auth | `->auth()->apiKey('X-API-Key', 'key123')` |
 | `auth()->jwt(string $key = '', array $payload = [], array $headers = [], Algorithm $algorithm = Algorithm::HS256, bool $secretBase64Encoded = false, string $headerPrefix = 'Bearer', bool $inQuery = false, string $queryKey = 'token')` | Add JWT auth | `->auth()->jwt('secret', ['user_id' => 123])` |
 | `auth()->digest(...)` | Add Digest auth | `->auth()->digest('user', 'pass', DigestAlgorithm::MD5)` |

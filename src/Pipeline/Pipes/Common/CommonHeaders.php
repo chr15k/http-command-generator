@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chr15k\HttpCommand\Pipeline\Pipes\Common;
 
+use Chr15k\HttpCommand\Collections\HttpParameterCollection;
 use Chr15k\HttpCommand\Contracts\BodyDataTransfer;
 use Chr15k\HttpCommand\Contracts\Pipe;
 use Chr15k\HttpCommand\DataTransfer\RequestData;
@@ -16,8 +17,14 @@ final readonly class CommonHeaders implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        foreach ($data->headers as $key => $value) {
-            $data->output .= " --header \"{$key}: {$value}\"";
+        $headers = (new HttpParameterCollection)
+            ->merge($data->headers)
+            ->all();
+
+        foreach ($headers as $key => $values) {
+            foreach ($values as $value) {
+                $data->output .= " --header \"{$key}: {$value}\"";
+            }
         }
 
         if ($data->body instanceof BodyDataTransfer

@@ -91,7 +91,7 @@ $builder->headers([
 Add a Bearer token to your request:
 
 ```php
-$builder->auth()->withBearerToken('your-access-token');
+$builder->auth()->bearerToken('your-access-token');
 ```
 
 This will add the `Authorization: Bearer your-access-token` header to your request.
@@ -282,13 +282,13 @@ use Chr15k\HttpCommand\HttpCommand;
 // Using cURL
 $curl = HttpCommand::get('https://api.example.com/search?q=test&page=1')
     ->header('Accept', 'application/json')
-    ->auth()->withBearerToken('your-access-token')
+    ->auth()->bearerToken('your-access-token')
     ->toCurl();
 
 // Using wget
 $wget = HttpCommand::get('https://api.example.com/search?q=test&page=1')
     ->header('Accept', 'application/json')
-    ->auth()->withBearerToken('your-access-token')
+    ->auth()->bearerToken('your-access-token')
     ->toWget();
 ```
 
@@ -327,7 +327,7 @@ $curl = HttpCommand::post('https://api.example.com/upload')
 use Chr15k\HttpCommand\HttpCommand;
 
 $curl = HttpCommand::put('https://api.example.com/users/123')
-    ->auth()->withBearerToken('your-access-token')
+    ->auth()->bearerToken('your-access-token')
     ->json([
         'name' => 'John Updated',
         'email' => 'john.updated@example.com'
@@ -359,7 +359,7 @@ $curl = HttpCommand::delete('https://api.example.com/users/123')
 use Chr15k\HttpCommand\HttpCommand;
 
 $wget = HttpCommand::delete('https://api.example.com/users/123')
-    ->auth()->withBearerToken('your-access-token')
+    ->auth()->bearerToken('your-access-token')
     ->toWget();
 
 // Output: wget --no-check-certificate --quiet --method DELETE --timeout=0 \

@@ -61,3 +61,11 @@ it('creates an OPTIONS command with a valid URL', function (): void {
     $output = HttpCommand::options('https://example.com')->toCurl();
     expect($output)->toContain('OPTIONS', 'https://example.com');
 });
+
+it('generates the command', function (...$scenarios): void {
+    $command = buildCommand($scenarios);
+
+    foreach ($scenarios['expected'] as $type => $expectedCommand) {
+        expect($command->to($type))->toBe($expectedCommand);
+    }
+})->with('scenarios');

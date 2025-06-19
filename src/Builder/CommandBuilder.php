@@ -15,6 +15,7 @@ use Chr15k\HttpCommand\DataTransfer\Body\MultipartFormData;
 use Chr15k\HttpCommand\DataTransfer\RequestData;
 use Chr15k\HttpCommand\Generators\CurlGenerator;
 use Chr15k\HttpCommand\Generators\WgetGenerator;
+use InvalidArgumentException;
 
 /**
  * @internal
@@ -36,6 +37,15 @@ final class CommandBuilder implements Builder
     private ?BodyDataTransfer $body = null;
 
     private bool $encodeQuery = false;
+
+    public function to(string $generator): string
+    {
+        return match ($generator) {
+            'curl' => $this->toCurl(),
+            'wget' => $this->toWget(),
+            default => throw new InvalidArgumentException("Unsupported generator: {$generator}")
+        };
+    }
 
     public function toCurl(): string
     {
@@ -73,36 +83,23 @@ final class CommandBuilder implements Builder
         return $this;
     }
 
-    /**
-     * @param  array<string, string>  $headers
-     */
-    public function headers(array $headers): self
-    {
-        $this->headers = array_merge($this->headers, $headers);
-
-        return $this;
-    }
-
-    public function header(string $name, string $value): self
-    {
-        $this->headers[$name] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param  array<string, string>  $headers
-     */
-    public function queries(array $queries): self
-    {
-        $this->queries = array_merge_recursive($this->queries, $queries);
-
-        return $this;
-    }
-
-    public function query(string $name, string $value): self
+    public function header(string $name, string $value = ''): self
     {
         $collection = new HttpParameterCollection;
+
+        $updated = $collection
+            ->merge(params: $this->headers)
+            ->add(key: $name, value: $value);
+
+        $this->headers = $updated->all();
+
+        return $this;
+    }
+
+    public function query(string $name, string $value = ''): self
+    {
+        $collection = new HttpParameterCollection;
+
         $updated = $collection
             ->merge(params: $this->queries)
             ->add(key: $name, value: $value);

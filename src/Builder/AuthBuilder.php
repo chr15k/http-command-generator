@@ -90,7 +90,7 @@ final readonly class AuthBuilder implements Builder
         ));
     }
 
-    public function withBearerToken(string $token): CommandBuilder
+    public function bearerToken(string $token): CommandBuilder
     {
         return $this->setAuthOnBuilder(new BearerTokenData(token: $token));
     }

@@ -84,7 +84,7 @@ use Chr15k\HttpCommand\HttpCommand;
 
 // Using a Bearer Token with cURL
 $curl = HttpCommand::get('https://api.example.com/protected-resource')
-    ->auth()->withBearerToken('your-access-token')
+    ->auth()->bearerToken('your-access-token')
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/protected-resource' \
@@ -92,7 +92,7 @@ $curl = HttpCommand::get('https://api.example.com/protected-resource')
 
 // Using a Bearer Token with wget
 $wget = HttpCommand::get('https://api.example.com/protected-resource')
-    ->auth()->withBearerToken('your-access-token')
+    ->auth()->bearerToken('your-access-token')
     ->toWget();
 
 // Output: wget --no-check-certificate --quiet --method GET --timeout=0 \
