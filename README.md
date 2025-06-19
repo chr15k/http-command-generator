@@ -243,12 +243,6 @@ $curl = HttpCommand::get('https://api.example.com/search')
 //  --header "Accept: application/json" \
 //  --header "User-Agent: MyApp/1.0" \
 //  --header "Authorization: Bearer your-token"
-
-// Control query parameter encoding
-$curl = HttpCommand::get('https://api.example.com/search')
-    ->query('filter', 'status:active')
-    ->encodeQuery(false)  // Disable URL encoding for this request (default behaviour)
-    ->toCurl();
 ```
 
 ### Command Generator Methods
