@@ -17,11 +17,13 @@ composer require chr15k/http-command-generator
 
 ## Features
 
-- **Fluent Builder API**: Construct HTTP requests with a clean, chainable interface
+- **Fluent Builder API**: Construct HTTP requests with a clean, chainable interface - mix headers, queries, authentication, and body methods in any order
 - **Multiple HTTP Methods**: Support for GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS and custom methods
-- **Multiple Command Generators**: Generate cURL and wget commands from the same request definition
+- **Method Chaining**: All builder methods (`header()`, `query()`, `auth()`, etc.) are chainable for clean, readable code
+- **Multiple Command Generators**: Generate cURL and wget commands from the same request definition using `toCurl()`, `toWget()`, or `to('generator')`
 - **Authentication Options**: Basic Auth, Bearer Token, API Key, JWT, and Digest Auth
 - **Body Formats**: JSON, form URL-encoded, multipart form data, and binary file data
+- **Query Parameter Control**: Enable/disable URL encoding with `encodeQuery()` method
 - **Zero External Dependencies**: Only requires chr15k/php-auth-generator for advanced auth options
 
 ## Basic Usage
@@ -220,27 +222,47 @@ $options = HttpCommand::options('https://api.example.com/users');   // OPTIONS
 $custom = HttpCommand::get()->method('CONNECT')->url('https://api.example.com');
 ```
 
-### Query Parameters
+### Query Parameters and Headers
+
+Both `query()` and `header()` methods are chainable, allowing you to build complex requests:
 
 ```php
 use Chr15k\HttpCommand\HttpCommand;
 
-// Adding individual query parameters
+// Chaining multiple query parameters and headers
 $curl = HttpCommand::get('https://api.example.com/search')
+    ->header('Accept', 'application/json')
+    ->header('User-Agent', 'MyApp/1.0')
     ->query('q', 'test')
     ->query('page', '1')
+    ->query('limit', '10')
+    ->auth()->bearerToken('your-token')
     ->toCurl();
 
-// Adding multiple query parameters at once
+// Output: curl --location --request GET 'https://api.example.com/search?q=test&page=1&limit=10' \
+//  --header "Accept: application/json" \
+//  --header "User-Agent: MyApp/1.0" \
+//  --header "Authorization: Bearer your-token"
+
+// Control query parameter encoding
 $curl = HttpCommand::get('https://api.example.com/search')
-    ->queries([
-        'q' => 'test',
-        'page' => '1',
-        'limit' => '10'
-    ])
+    ->query('filter', 'status:active')
+    ->encodeQuery(false)  // Disable URL encoding for this request
     ->toCurl();
+```
 
-// Output: curl --location --request GET 'https://api.example.com/search?q=test&page=1&limit=10'
+### Command Generator Methods
+
+You can use either specific generator methods or the generic `to()` method:
+
+```php
+// Using specific methods
+$curl = HttpCommand::get('https://api.example.com')->toCurl();
+$wget = HttpCommand::get('https://api.example.com')->toWget();
+
+// Using the generic to() method
+$curl = HttpCommand::get('https://api.example.com')->to('curl');
+$wget = HttpCommand::get('https://api.example.com')->to('wget');
 ```
 
 ## Advanced Usage
@@ -334,37 +356,33 @@ $wget = HttpCommand::post('https://api.example.com/upload-binary')
 
 ### Custom Request Headers
 
+The `header()` method is chainable, allowing you to add multiple headers easily:
+
 ```php
 use Chr15k\HttpCommand\HttpCommand;
 
-// Adding custom headers with cURL
+// Chain multiple headers together
 $curl = HttpCommand::get('https://api.example.com/data')
     ->header('Accept', 'application/json')
     ->header('Cache-Control', 'no-cache')
+    ->header('User-Agent', 'MyApp/1.0')
+    ->header('X-Custom-Header', 'custom-value')
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/data' \
 //  --header "Accept: application/json" \
-//  --header "Cache-Control: no-cache"
-
-// Adding custom headers with wget
-$wget = HttpCommand::get('https://api.example.com/data')
-    ->header('Accept', 'application/json')
-    ->header('Cache-Control', 'no-cache')
-    ->toWget();
-
-// Output: wget --no-check-certificate --quiet --method GET --timeout=0 \
-//  --header "Accept: application/json" \
 //  --header "Cache-Control: no-cache" \
-//  'https://api.example.com/data'
+//  --header "User-Agent: MyApp/1.0" \
+//  --header "X-Custom-Header: custom-value"
 
-// Alternative way to add multiple headers
-$curl = HttpCommand::get('https://api.example.com/data')
-    ->headers([
-        'Accept' => 'application/json',
-        'Cache-Control' => 'no-cache',
-        'X-Custom-Header' => 'CustomValue',
-    ])
+// Headers can be mixed with other methods in any order
+$request = HttpCommand::post('https://api.example.com/users')
+    ->header('Accept', 'application/json')
+    ->auth()->bearerToken('token123')
+    ->header('Content-Type', 'application/json')
+    ->query('notify', 'true')
+    ->header('X-Request-ID', 'req-456')
+    ->json(['name' => 'John'])
     ->toCurl();
 ```
 
