@@ -15,7 +15,7 @@ final class WgetInit implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        $data->output = 'wget --no-check-certificate --quiet';
+        $data = $data->copyWithOutput('wget --no-check-certificate --quiet');
 
         return $next($data);
     }

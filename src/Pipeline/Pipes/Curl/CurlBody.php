@@ -19,58 +19,66 @@ final readonly class CurlBody implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        match (true) {
-            $data->body instanceof JsonBodyData => $this->handleJsonBody($data),
-            $data->body instanceof FormUrlEncodedData => $this->handleFormUrlEncodedBody($data),
-            $data->body instanceof MultipartFormData => $this->handleMultiPartFormData($data),
-            $data->body instanceof BinaryData => $this->handleBinaryData($data),
-            default => null
+        $output = match (true) {
+            $data->body instanceof JsonBodyData => $this->getJsonBody($data),
+            $data->body instanceof FormUrlEncodedData => $this->getFormUrlEncodedBody($data),
+            $data->body instanceof MultipartFormData => $this->getMultiPartFormData($data),
+            $data->body instanceof BinaryData => $this->getBinaryData($data),
+            default => ''
         };
+
+        $data = $data->copyWithOutput($data->output.$output);
 
         return $next($data);
     }
 
-    private function handleJsonBody(RequestData &$data): void
+    private function getJsonBody(RequestData $data): string
     {
         $jsonBody = $data->body?->getContent() ?? '';
 
-        $data->output .= " --data '$jsonBody'";
+        return " --data '$jsonBody'";
     }
 
-    private function handleFormUrlEncodedBody(RequestData &$data): void
+    private function getFormUrlEncodedBody(RequestData $data): string
     {
         $formData = $data->body?->getContent() ?? '';
 
         $decoded = json_decode($formData, true);
 
         if (! is_array($decoded) || $decoded === []) {
-            return;
+            return '';
         }
 
+        $return = [];
         foreach ($decoded as $key => $value) {
-            $data->output .= " --data-urlencode '$key=$value'";
+            $return[] = " --data-urlencode '$key=$value'";
         }
+
+        return implode('', $return);
     }
 
-    private function handleMultiPartFormData(RequestData &$data): void
+    private function getMultiPartFormData(RequestData $data): string
     {
         $formData = $data->body?->getContent() ?? '';
 
         $decoded = json_decode($formData, true);
 
         if (! is_array($decoded) || $decoded === []) {
-            return;
+            return '';
         }
 
+        $return = [];
         foreach ($decoded as $key => $value) {
-            $data->output .= " --form '$key=$value'";
+            $return[] = " --form '$key=$value'";
         }
+
+        return implode('', $return);
     }
 
-    private function handleBinaryData(RequestData &$data): void
+    private function getBinaryData(RequestData $data): string
     {
         $formData = $data->body?->getContent() ?? '';
 
-        $data->output .= " --data-binary '@$formData'";
+        return " --data-binary '@$formData'";
     }
 }

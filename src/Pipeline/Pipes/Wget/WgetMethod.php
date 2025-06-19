@@ -15,7 +15,7 @@ final class WgetMethod implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        $data->output .= " --method {$data->method}";
+        $data = $data->copyWithOutput($data->output." --method {$data->method}");
 
         return $next($data);
     }

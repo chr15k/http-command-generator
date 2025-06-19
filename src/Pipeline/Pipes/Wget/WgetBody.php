@@ -20,46 +20,45 @@ final readonly class WgetBody implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        match (true) {
-            $data->body instanceof JsonBodyData => $this->handleJsonBody($data),
+        $output = match (true) {
+            $data->body instanceof JsonBodyData => $this->getJsonBody($data),
             $data->body instanceof FormUrlEncodedData,
-            $data->body instanceof MultipartFormData => $this->handleFormData($data),
-            $data->body instanceof BinaryData => $this->handleBinaryData($data),
-            default => null
+            $data->body instanceof MultipartFormData => $this->getFormData($data),
+            $data->body instanceof BinaryData => $this->getBinaryData($data),
+            default => ''
         };
+
+        $data = $data->copyWithOutput($data->output.$output);
 
         return $next($data);
     }
 
-    private function handleJsonBody(RequestData &$data): void
+    private function getJsonBody(RequestData $data): string
     {
         $jsonBody = $data->body?->getContent() ?? '';
 
-        $data->output .= " --body-data '$jsonBody'";
+        return " --body-data '$jsonBody'";
     }
 
-    /**
-     * Format is the same for both url encoded and multipart form data.
-     */
-    private function handleFormData(RequestData &$data): void
+    private function getFormData(RequestData $data): string
     {
         $formData = $data->body?->getContent() ?? '';
 
         $decoded = json_decode($formData, true);
 
         if (! is_array($decoded) || $decoded === []) {
-            return;
+            return '';
         }
 
         $query = Url::buildQuery($decoded, $data->encodeQuery);
 
-        $data->output .= " --body-data '$query'";
+        return " --body-data '$query'";
     }
 
-    private function handleBinaryData(RequestData &$data): void
+    private function getBinaryData(RequestData $data): string
     {
         $formData = $data->body?->getContent() ?? '';
 
-        $data->output .= " --body-file='$formData'";
+        return " --body-file='$formData'";
     }
 }

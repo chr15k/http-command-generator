@@ -21,25 +21,27 @@ final readonly class CommonAuthHeaders implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        match (true) {
-            $data->auth instanceof BasicAuthData => $this->handleBasicAuth($data),
-            $data->auth instanceof BearerTokenData => $this->handleBearerToken($data),
-            $data->auth instanceof DigestAuthData => $this->handleDigestAuth($data),
-            $data->auth instanceof ApiKeyData => $this->handleApiKeyAuth($data),
-            $data->auth instanceof JWTData => $this->handleJWTAuth($data),
-            default => null
+        $output = match (true) {
+            $data->auth instanceof BasicAuthData => $this->getBasicAuth($data),
+            $data->auth instanceof BearerTokenData => $this->getBearerToken($data),
+            $data->auth instanceof DigestAuthData => $this->getDigestAuth($data),
+            $data->auth instanceof ApiKeyData => $this->getApiKeyAuth($data),
+            $data->auth instanceof JWTData => $this->getJWTAuth($data),
+            default => ''
         };
+
+        $data = $data->copyWithOutput($data->output.$output);
 
         return $next($data);
     }
 
-    private function handleBasicAuth(RequestData &$data): void
+    private function getBasicAuth(RequestData $data): string
     {
         /** @var BasicAuthData $auth */
         $auth = $data->auth;
 
         if ($auth->username === '' || $auth->username === '0') {
-            return;
+            return '';
         }
 
         $encoded = AuthGenerator::basicAuth()
@@ -47,28 +49,28 @@ final readonly class CommonAuthHeaders implements Pipe
             ->password($auth->password ?? '')
             ->toHeader();
 
-        $data->output .= sprintf(" --header 'Authorization: %s'", $encoded);
+        return sprintf(" --header 'Authorization: %s'", $encoded);
     }
 
-    private function handleBearerToken(RequestData &$data): void
+    private function getBearerToken(RequestData $data): string
     {
         /** @var BearerTokenData $auth */
         $auth = $data->auth;
 
         if ($auth->token === '' || $auth->token === '0') {
-            return;
+            return '';
         }
 
-        $data->output .= sprintf(" --header 'Authorization: Bearer %s'", $auth->token);
+        return sprintf(" --header 'Authorization: Bearer %s'", $auth->token);
     }
 
-    private function handleDigestAuth(RequestData &$data): void
+    private function getDigestAuth(RequestData $data): string
     {
         /** @var DigestAuthData $auth */
         $auth = $data->auth;
 
         if ($auth->username === '' || $auth->realm === '') {
-            return;
+            return '';
         }
 
         $header = AuthGenerator::digestAuth()
@@ -85,29 +87,30 @@ final readonly class CommonAuthHeaders implements Pipe
             ->opaque($auth->opaque)
             ->toHeader();
 
-        $data->output .= sprintf(" --header 'Authorization: %s'", $header);
+        return sprintf(" --header 'Authorization: %s'", $header);
     }
 
-    private function handleApiKeyAuth(RequestData &$data): void
+    private function getApiKeyAuth(RequestData $data): string
     {
         /** @var ApiKeyData $auth */
         $auth = $data->auth;
 
         if ($auth->key === '' || $auth->key === '0' || $auth->inQuery) {
-            return;
+            return '';
         }
 
         $separator = $auth->value !== '' && $auth->value !== '0' ? ':' : ';';
-        $data->output .= sprintf(" --header '%s%s %s'", $auth->key, $separator, $auth->value);
+
+        return sprintf(" --header '%s%s %s'", $auth->key, $separator, $auth->value);
     }
 
-    private function handleJWTAuth(RequestData &$data): void
+    private function getJWTAuth(RequestData $data): string
     {
         /** @var JWTData $auth */
         $auth = $data->auth;
 
         if ($auth->key === '' || $auth->key === '0' || $auth->inQuery) {
-            return;
+            return '';
         }
 
         $token = AuthGenerator::jwt()
@@ -117,7 +120,7 @@ final readonly class CommonAuthHeaders implements Pipe
             ->claims($auth->payload)
             ->toString();
 
-        $data->output .= str_replace(
+        return str_replace(
             '  ', ' ', sprintf(" --header 'Authorization: %s %s'", $auth->headerPrefix, $token)
         );
     }

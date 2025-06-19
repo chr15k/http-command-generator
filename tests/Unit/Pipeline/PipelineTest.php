@@ -42,7 +42,7 @@ test('pipeline can be processed through pipes with destination', function (): vo
     $pipeline = Pipeline::send($data)
         ->through([FakePipeOne::class])
         ->then(function (RequestData $data): RequestData {
-            $data->output .= ' Destination!';
+            $data = $data->copyWithOutput($data->output.' Destination!');
 
             return $data;
         });
@@ -52,7 +52,8 @@ test('pipeline can be processed through pipes with destination', function (): vo
 
 test('pipeline can be processed with closure pipes', function (): void {
     $data = new RequestData;
-    $data->output = 'Closure Pipe!';
+
+    $data = $data->copyWithOutput('Closure Pipe!');
 
     $pipeline = Pipeline::send($data)
         ->through([

@@ -10,22 +10,41 @@ use Chr15k\HttpCommand\Contracts\BodyDataTransfer;
 /**
  * @internal
  */
-final class RequestData
+final readonly class RequestData
 {
     /**
      * @param  array<string, array<int, string>|string>  $headers
      * @param  array<string, array<int, string>|string>  $queries
      */
     public function __construct(
-        public readonly string $method = '',
-        public readonly string $url = '',
-        public readonly array $headers = [],
-        public readonly array $queries = [],
-        public readonly ?BodyDataTransfer $body = null,
-        public readonly ?AuthDataTransfer $auth = null,
+        public string $method = '',
+        public string $url = '',
+        public array $headers = [],
+        public array $queries = [],
+        public ?BodyDataTransfer $body = null,
+        public ?AuthDataTransfer $auth = null,
         public string $output = '',
-        public readonly bool $encodeQuery = false
+        public bool $encodeQuery = false,
+        public bool $includeLineBreaks = false
     ) {
         //
+    }
+
+    /**
+     * Creates a copy of the RequestData with a new output string to ensure immutability of DTO.
+     */
+    public function copyWithOutput(string $output): self
+    {
+        return new self(
+            method: $this->method,
+            url: $this->url,
+            headers: $this->headers,
+            queries: $this->queries,
+            body: $this->body,
+            auth: $this->auth,
+            output: $output,
+            encodeQuery: $this->encodeQuery,
+            includeLineBreaks: $this->includeLineBreaks
+        );
     }
 }

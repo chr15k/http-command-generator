@@ -15,7 +15,7 @@ final class WgetTimeout implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        $data->output .= ' --timeout=0';
+        $data = $data->copyWithOutput($data->output.' --timeout=0');
 
         return $next($data);
     }

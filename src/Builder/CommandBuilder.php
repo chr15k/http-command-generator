@@ -38,6 +38,8 @@ final class CommandBuilder implements Builder
 
     private bool $encodeQuery = false;
 
+    private bool $includeLineBreaks = false;
+
     public function to(string $generator): string
     {
         return match ($generator) {
@@ -145,9 +147,16 @@ final class CommandBuilder implements Builder
         return $this->body(new BinaryData(filePath: $filePath));
     }
 
-    public function encodeQuery(bool $encode = true): self
+    public function encodeQuery(): self
     {
-        $this->encodeQuery = $encode;
+        $this->encodeQuery = true;
+
+        return $this;
+    }
+
+    public function includeLineBreaks(): self
+    {
+        $this->includeLineBreaks = true;
 
         return $this;
     }
@@ -161,7 +170,8 @@ final class CommandBuilder implements Builder
             queries: $this->queries,
             auth: $this->auth,
             body: $this->body,
-            encodeQuery: $this->encodeQuery
+            encodeQuery: $this->encodeQuery,
+            includeLineBreaks: $this->includeLineBreaks
         );
     }
 }

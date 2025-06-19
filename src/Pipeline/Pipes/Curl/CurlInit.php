@@ -15,7 +15,7 @@ final readonly class CurlInit implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        $data->output = 'curl --location';
+        $data = $data->copyWithOutput('curl --location');
 
         return $next($data);
     }

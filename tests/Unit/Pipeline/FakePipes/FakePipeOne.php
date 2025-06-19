@@ -12,7 +12,7 @@ final class FakePipeOne implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        $data->output .= 'Fake 1!';
+        $data = $data->copyWithOutput($data->output.'Fake 1!');
 
         return $next($data);
     }
