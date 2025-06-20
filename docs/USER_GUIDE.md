@@ -23,6 +23,7 @@ This guide provides comprehensive examples of how to use the HTTP Command Genera
   - [Generic to() Method](#generic-to-method)
   - [cURL Generator](#curl-generator)
   - [wget Generator](#wget-generator)
+- [Line Break Formatting](#line-break-formatting)
 - [Full Examples](#full-examples)
 - [Query Parameters](#query-parameters)
 - [Advanced Method Chaining Examples](#advanced-method-chaining-examples)
@@ -328,6 +329,132 @@ $wget = HttpCommand::get('https://api.example.com/users')
 - Uses `--method` to specify HTTP methods
 - Sets default timeout to 0 (--timeout=0)
 - Uses `--no-check-certificate` and `--quiet` by default
+
+## Line Break Formatting
+
+For better readability, especially when working with complex commands or when copying commands for use in scripts, you can enable line break formatting using the `includeLineBreaks()` method. This will format the command with line breaks and backslashes for continuation, similar to how Postman's cURL generator formats commands.
+
+### Basic Usage
+
+```php
+use Chr15k\HttpCommand\HttpCommand;
+
+// Default output (single line)
+$command = HttpCommand::get('https://api.example.com/users')
+    ->header('Accept', 'application/json')
+    ->toCurl();
+
+echo $command;
+// Output: curl --location --request GET 'https://api.example.com/users' --header "Accept: application/json"
+
+// With line breaks for better readability
+$command = HttpCommand::get('https://api.example.com/users')
+    ->header('Accept', 'application/json')
+    ->includeLineBreaks()
+    ->toCurl();
+
+echo $command;
+// Output: curl --location \
+//   --request GET \
+//   'https://api.example.com/users' \
+//   --header "Accept: application/json"
+```
+
+### Complex Example with Multiple Features
+
+```php
+use Chr15k\HttpCommand\HttpCommand;
+
+// Complex command with authentication, headers, query parameters, and body
+$command = HttpCommand::post('https://api.example.com/users')
+    ->header('Accept', 'application/json')
+    ->header('Content-Type', 'application/json')
+    ->header('User-Agent', 'MyApp/1.0')
+    ->query('notify', 'true')
+    ->query('source', 'api')
+    ->auth()->bearerToken('your-access-token')
+    ->json([
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+        'role' => 'user'
+    ])
+    ->includeLineBreaks()
+    ->toCurl();
+
+echo $command;
+// Output: curl --location \
+//   --request POST \
+//   'https://api.example.com/users?notify=true&source=api' \
+//   --header "Accept: application/json" \
+//   --header "Content-Type: application/json" \
+//   --header "User-Agent: MyApp/1.0" \
+//   --header "Authorization: Bearer your-access-token" \
+//   --data '{"name":"John Doe","email":"john@example.com","role":"user"}'
+```
+
+### Works with Both Generators
+
+The `includeLineBreaks()` method works with both cURL and wget generators:
+
+```php
+use Chr15k\HttpCommand\HttpCommand;
+
+$request = HttpCommand::get('https://api.example.com/data')
+    ->header('Authorization', 'Bearer token')
+    ->header('Accept', 'application/json')
+    ->query('page', '1')
+    ->includeLineBreaks();
+
+// cURL with line breaks
+$curl = $request->toCurl();
+echo $curl;
+// Output: curl --location \
+//   --request GET \
+//   'https://api.example.com/data?page=1' \
+//   --header "Authorization: Bearer token" \
+//   --header "Accept: application/json"
+
+// wget with line breaks
+$wget = $request->toWget();
+echo $wget;
+// Output: wget --no-check-certificate --quiet \
+//   --method GET \
+//   --timeout=0 \
+//   --header "Authorization: Bearer token" \
+//   --header "Accept: application/json" \
+//   'https://api.example.com/data?page=1'
+```
+
+### Method Chaining
+
+The `includeLineBreaks()` method is chainable and can be placed anywhere in your method chain:
+
+```php
+use Chr15k\HttpCommand\HttpCommand;
+
+// includeLineBreaks() can be called at any point in the chain
+$command = HttpCommand::post('https://api.example.com/users')
+    ->includeLineBreaks()  // Can be called early
+    ->header('Accept', 'application/json')
+    ->auth()->bearerToken('token')
+    ->json(['name' => 'John'])
+    ->toCurl();
+
+// Or at the end before generation
+$command = HttpCommand::post('https://api.example.com/users')
+    ->header('Accept', 'application/json')
+    ->auth()->bearerToken('token')
+    ->json(['name' => 'John'])
+    ->includeLineBreaks()  // Can be called late
+    ->toCurl();
+```
+
+This feature is particularly useful when you need to:
+- Copy commands to shell scripts
+- Share commands with team members
+- Debug complex HTTP requests
+- Generate documentation examples
+- Work with commands that have many parameters
 
 ## Full Examples
 

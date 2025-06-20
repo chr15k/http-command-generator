@@ -17,6 +17,7 @@ Quick reference guide for the HTTP Command Generator library.
 | `HttpCommand::options(string $url = '')` | Create an OPTIONS request | `HttpCommand::options('https://api.example.com')` |
 | `url(string $url)` | Set the URL | `->url('https://api.example.com')` |
 | `method(string $method)` | Change HTTP method | `->method('PATCH')` |
+| `includeLineBreaks()` | Format command with line breaks for readability | `->includeLineBreaks()` |
 | `to(string $generator)` | Generate command using specified generator | `->to('curl')` or `->to('wget')` |
 | `toCurl()` | Generate cURL command | `->toCurl()` |
 | `toWget()` | Generate wget command | `->toWget()` |
@@ -132,6 +133,43 @@ class CustomBodyData implements BodyDataTransfer {
 HttpCommand::post('https://api.example.com')
     ->body(new CustomBodyData())
     ->toCurl();
+```
+
+## Line Break Formatting
+
+Format commands with line breaks for better readability:
+
+```php
+// Default output (single line)
+HttpCommand::post('https://api.example.com/users')
+    ->header('Authorization', 'Bearer token')
+    ->json(['name' => 'John'])
+    ->toCurl();
+// Output: curl --location --request POST 'https://api.example.com/users' --header "Authorization: Bearer token" --data '{"name":"John"}'
+
+// With line breaks for better readability
+HttpCommand::post('https://api.example.com/users')
+    ->header('Authorization', 'Bearer token')
+    ->json(['name' => 'John'])
+    ->includeLineBreaks()
+    ->toCurl();
+// Output: curl --location \
+//   --request POST \
+//   'https://api.example.com/users' \
+//   --header "Authorization: Bearer token" \
+//   --data '{"name":"John"}'
+
+// Works with wget too
+HttpCommand::get('https://api.example.com/data')
+    ->header('Accept', 'application/json')
+    ->includeLineBreaks()
+    ->toWget();
+// Output: wget --no-check-certificate \
+//   --quiet \
+//   --method GET \
+//   --timeout=0 \
+//   --header 'Accept: application/json' \
+//   'https://api.example.com/data'
 ```
 
 

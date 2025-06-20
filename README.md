@@ -24,6 +24,7 @@ composer require chr15k/http-command-generator
 - **Authentication Options**: Basic Auth, Bearer Token, API Key, JWT, and Digest Auth
 - **Body Formats**: JSON, form URL-encoded, multipart form data, and binary file data
 - **Query Parameter Control**: Enable/disable URL encoding with `encodeQuery()` method
+- **Line Break Formatting**: Generate commands with line breaks for better readability using `includeLineBreaks()` method
 - **Zero External Dependencies**: Only requires chr15k/php-auth-generator for advanced auth options
 
 ## Basic Usage
@@ -401,6 +402,40 @@ $wget = HttpCommand::get('https://api.example.com/users')->toWget();
 ```
 
 Both generators support the same API and features, but have different output formats and capabilities. wget doesn't support all features that cURL does (like native multipart form data), but provides a good alternative for basic HTTP operations.
+
+## Line Break Formatting
+
+For better readability, especially when working with complex commands, you can enable line breaks in the generated commands using the `includeLineBreaks()` method:
+
+```php
+use Chr15k\HttpCommand\HttpCommand;
+
+// Default output (single line)
+$command = HttpCommand::post('https://api.example.com/users')
+    ->header('Authorization', 'Bearer token')
+    ->header('Content-Type', 'application/json')
+    ->json(['name' => 'John Doe', 'email' => 'john@example.com'])
+    ->toCurl();
+
+// Output: curl --location --request POST 'https://api.example.com/users' --header "Authorization: Bearer token" --header "Content-Type: application/json" --data '{"name":"John Doe","email":"john@example.com"}'
+
+// With line breaks for better readability
+$command = HttpCommand::post('https://api.example.com/users')
+    ->header('Authorization', 'Bearer token')
+    ->header('Content-Type', 'application/json')
+    ->json(['name' => 'John Doe', 'email' => 'john@example.com'])
+    ->includeLineBreaks()
+    ->toCurl();
+
+// Output: curl --location \
+//   --request POST \
+//   'https://api.example.com/users' \
+//   --header "Authorization: Bearer token" \
+//   --header "Content-Type: application/json" \
+//   --data '{"name":"John Doe","email":"john@example.com"}'
+```
+
+The `includeLineBreaks()` method works with both cURL and wget generators and can be chained with any other builder methods.
 
 ## Documentation
 
