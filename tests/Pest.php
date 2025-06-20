@@ -88,6 +88,10 @@ function buildCommand(array $scenario): CommandBuilder
         $command->encodeQuery();
     }
 
+    if ($scenario['includeLineBreaks'] ?? false) {
+        $command->includeLineBreaks();
+    }
+
     if ($body = $scenario['body'] ?? null) {
         switch ($body['type']) {
             case 'json':

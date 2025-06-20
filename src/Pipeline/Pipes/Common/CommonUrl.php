@@ -24,7 +24,9 @@ final readonly class CommonUrl implements Pipe
 
         $url = Url::mergeQuery($data->url, $params, $data->encodeQuery);
 
-        $data = $data->copyWithOutput("{$data->output} '{$url}'");
+        $output = trim(sprintf("%s%s'%s'", $data->output, $data->separator(), $url));
+
+        $data = $data->copyWithOutput($output);
 
         return $next($data);
     }

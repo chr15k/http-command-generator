@@ -15,7 +15,14 @@ final class WgetMethod implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        $data = $data->copyWithOutput($data->output." --method {$data->method}");
+        $output = sprintf(
+            '%s%s--method %s',
+            $data->output,
+            $data->separator(),
+            $data->method
+        );
+
+        $data = $data->copyWithOutput($output);
 
         return $next($data);
     }

@@ -21,16 +21,22 @@ final readonly class CommonAuthHeaders implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        $output = match (true) {
+        $auth = match (true) {
             $data->auth instanceof BasicAuthData => $this->getBasicAuth($data),
             $data->auth instanceof BearerTokenData => $this->getBearerToken($data),
             $data->auth instanceof DigestAuthData => $this->getDigestAuth($data),
             $data->auth instanceof ApiKeyData => $this->getApiKeyAuth($data),
             $data->auth instanceof JWTData => $this->getJWTAuth($data),
-            default => ''
+            default => null
         };
 
-        $data = $data->copyWithOutput($data->output.$output);
+        if ($auth === null) {
+            return $next($data);
+        }
+
+        $output = trim(sprintf('%s%s%s', $data->output, $data->separator(), $auth));
+
+        $data = $data->copyWithOutput($output);
 
         return $next($data);
     }
@@ -49,7 +55,7 @@ final readonly class CommonAuthHeaders implements Pipe
             ->password($auth->password ?? '')
             ->toHeader();
 
-        return sprintf(" --header 'Authorization: %s'", $encoded);
+        return sprintf("--header 'Authorization: %s'", $encoded);
     }
 
     private function getBearerToken(RequestData $data): string
@@ -61,7 +67,7 @@ final readonly class CommonAuthHeaders implements Pipe
             return '';
         }
 
-        return sprintf(" --header 'Authorization: Bearer %s'", $auth->token);
+        return sprintf("--header 'Authorization: Bearer %s'", $auth->token);
     }
 
     private function getDigestAuth(RequestData $data): string
@@ -87,7 +93,7 @@ final readonly class CommonAuthHeaders implements Pipe
             ->opaque($auth->opaque)
             ->toHeader();
 
-        return sprintf(" --header 'Authorization: %s'", $header);
+        return sprintf("--header 'Authorization: %s'", $header);
     }
 
     private function getApiKeyAuth(RequestData $data): string
@@ -101,7 +107,7 @@ final readonly class CommonAuthHeaders implements Pipe
 
         $separator = $auth->value !== '' && $auth->value !== '0' ? ':' : ';';
 
-        return sprintf(" --header '%s%s %s'", $auth->key, $separator, $auth->value);
+        return sprintf("--header '%s%s %s'", $auth->key, $separator, $auth->value);
     }
 
     private function getJWTAuth(RequestData $data): string
@@ -121,7 +127,7 @@ final readonly class CommonAuthHeaders implements Pipe
             ->toString();
 
         return str_replace(
-            '  ', ' ', sprintf(" --header 'Authorization: %s %s'", $auth->headerPrefix, $token)
+            '  ', ' ', sprintf("--header 'Authorization: %s %s'", $auth->headerPrefix, $token)
         );
     }
 }

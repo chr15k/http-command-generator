@@ -20,15 +20,21 @@ final readonly class WgetBody implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        $output = match (true) {
+        $body = match (true) {
             $data->body instanceof JsonBodyData => $this->getJsonBody($data),
             $data->body instanceof FormUrlEncodedData,
             $data->body instanceof MultipartFormData => $this->getFormData($data),
             $data->body instanceof BinaryData => $this->getBinaryData($data),
-            default => ''
+            default => null
         };
 
-        $data = $data->copyWithOutput($data->output.$output);
+        if ($body === null) {
+            return $next($data);
+        }
+
+        $output = trim(sprintf('%s%s%s', $data->output, $data->separator(), $body));
+
+        $data = $data->copyWithOutput($output);
 
         return $next($data);
     }
@@ -37,7 +43,7 @@ final readonly class WgetBody implements Pipe
     {
         $jsonBody = $data->body?->getContent() ?? '';
 
-        return " --body-data '$jsonBody'";
+        return "--body-data '$jsonBody'";
     }
 
     private function getFormData(RequestData $data): string
@@ -52,13 +58,13 @@ final readonly class WgetBody implements Pipe
 
         $query = Url::buildQuery($decoded, $data->encodeQuery);
 
-        return " --body-data '$query'";
+        return "--body-data '$query'";
     }
 
     private function getBinaryData(RequestData $data): string
     {
         $formData = $data->body?->getContent() ?? '';
 
-        return " --body-file='$formData'";
+        return "--body-file='$formData'";
     }
 }

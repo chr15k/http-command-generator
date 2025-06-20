@@ -15,12 +15,14 @@ final class CurlMethod implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        $output = match ($data->method) {
-            'HEAD' => ' --request --head',
-            default => " --request {$data->method}",
+        $method = match ($data->method) {
+            'HEAD' => '--request --head',
+            default => "--request {$data->method}",
         };
 
-        $data = $data->copyWithOutput($data->output.$output);
+        $output = sprintf('%s%s%s', $data->output, $data->separator(), $method);
+
+        $data = $data->copyWithOutput($output);
 
         return $next($data);
     }

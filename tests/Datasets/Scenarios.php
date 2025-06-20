@@ -551,4 +551,43 @@ dataset('scenarios', [
             'wget' => "wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api'",
         ],
     ],
+
+    // Line breaks formatting tests
+    'basic GET request with line breaks' => [
+        'method' => 'GET',
+        'url' => 'https://example.com/api',
+        'includeLineBreaks' => true,
+        'expected' => [
+            'curl' => "curl --location \\\n --request GET \\\n 'https://example.com/api'",
+            'wget' => "wget --no-check-certificate --quiet \\\n --method GET \\\n --timeout=0 \\\n 'https://example.com/api'",
+        ],
+    ],
+
+    'request with headers and line breaks' => [
+        'method' => 'POST',
+        'url' => 'https://example.com/api',
+        'headers' => [
+            'Authorization' => 'Bearer token',
+            'Content-Type' => 'application/json',
+        ],
+        'includeLineBreaks' => true,
+        'expected' => [
+            'curl' => "curl --location \\\n --request POST \\\n 'https://example.com/api' \\\n --header \"Authorization: Bearer token\" \\\n --header \"Content-Type: application/json\"",
+            'wget' => "wget --no-check-certificate --quiet \\\n --method POST \\\n --timeout=0 \\\n --header \"Authorization: Bearer token\" \\\n --header \"Content-Type: application/json\" \\\n 'https://example.com/api'",
+        ],
+    ],
+
+    'request with authentication and line breaks' => [
+        'method' => 'GET',
+        'url' => 'https://example.com/api',
+        'auth' => [
+            'type' => 'bearer',
+            'token' => 'your_token_here',
+        ],
+        'includeLineBreaks' => true,
+        'expected' => [
+            'curl' => "curl --location \\\n --request GET \\\n 'https://example.com/api' \\\n --header 'Authorization: Bearer your_token_here'",
+            'wget' => "wget --no-check-certificate --quiet \\\n --method GET \\\n --timeout=0 \\\n --header 'Authorization: Bearer your_token_here' \\\n 'https://example.com/api'",
+        ],
+    ],
 ]);

@@ -19,15 +19,21 @@ final readonly class CurlBody implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        $output = match (true) {
+        $body = match (true) {
             $data->body instanceof JsonBodyData => $this->getJsonBody($data),
             $data->body instanceof FormUrlEncodedData => $this->getFormUrlEncodedBody($data),
             $data->body instanceof MultipartFormData => $this->getMultiPartFormData($data),
             $data->body instanceof BinaryData => $this->getBinaryData($data),
-            default => ''
+            default => null
         };
 
-        $data = $data->copyWithOutput($data->output.$output);
+        if ($body === null) {
+            return $next($data);
+        }
+
+        $output = trim(sprintf('%s%s%s', $data->output, $data->separator(), $body));
+
+        $data = $data->copyWithOutput($output);
 
         return $next($data);
     }
@@ -36,7 +42,7 @@ final readonly class CurlBody implements Pipe
     {
         $jsonBody = $data->body?->getContent() ?? '';
 
-        return " --data '$jsonBody'";
+        return "--data '$jsonBody'";
     }
 
     private function getFormUrlEncodedBody(RequestData $data): string
@@ -54,7 +60,7 @@ final readonly class CurlBody implements Pipe
             $return[] = " --data-urlencode '$key=$value'";
         }
 
-        return implode('', $return);
+        return trim(implode('', $return));
     }
 
     private function getMultiPartFormData(RequestData $data): string
@@ -72,13 +78,13 @@ final readonly class CurlBody implements Pipe
             $return[] = " --form '$key=$value'";
         }
 
-        return implode('', $return);
+        return trim(implode('', $return));
     }
 
     private function getBinaryData(RequestData $data): string
     {
         $formData = $data->body?->getContent() ?? '';
 
-        return " --data-binary '@$formData'";
+        return "--data-binary '@$formData'";
     }
 }

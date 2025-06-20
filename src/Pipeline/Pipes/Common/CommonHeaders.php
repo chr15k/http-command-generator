@@ -17,13 +17,13 @@ final readonly class CommonHeaders implements Pipe
 {
     public function __invoke(RequestData $data, Closure $next): RequestData
     {
-        $collection = (new HttpParameterCollection)
-            ->merge($data->headers);
+        $prefix = $data->separator();
+        $collection = (new HttpParameterCollection)->merge($data->headers);
 
         $headers = [];
         foreach ($collection->all() as $key => $values) {
             foreach ($values as $value) {
-                $headers[] = " --header \"{$key}: {$value}\"";
+                $headers[] = "$prefix--header \"{$key}: {$value}\"";
             }
         }
 
@@ -35,11 +35,21 @@ final readonly class CommonHeaders implements Pipe
             $value = $data->body->getContentTypeHeader();
 
             if ($value !== '' && $value !== '0') {
-                $headers[] = " --header 'Content-Type: {$value}'";
+                $headers[] = "$prefix--header 'Content-Type: {$value}'";
             }
         }
 
-        $data = $data->copyWithOutput($data->output.implode('', $headers));
+        if ($headers === []) {
+            return $next($data);
+        }
+
+        $output = trim(sprintf(
+            '%s%s',
+            $data->output,
+            implode('', $headers)
+        ));
+
+        $data = $data->copyWithOutput($output);
 
         return $next($data);
     }

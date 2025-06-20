@@ -26,10 +26,14 @@ final class CommandBuilder implements Builder
 
     private string $method = 'GET';
 
-    /** @var array<string, array<int, string>> */
+    /**
+     * @var array<string, array<int, string>>
+     */
     private array $headers = [];
 
-    /** @var array<string, array<int, string>> */
+    /**
+     * @var array<string, array<int, string>>
+     */
     private array $queries = [];
 
     private ?AuthDataTransfer $auth = null;

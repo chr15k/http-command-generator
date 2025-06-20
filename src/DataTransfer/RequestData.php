@@ -47,4 +47,9 @@ final readonly class RequestData
             includeLineBreaks: $this->includeLineBreaks
         );
     }
+
+    public function separator(): string
+    {
+        return $this->includeLineBreaks ? " \\\n " : ' ';
+    }
 }
