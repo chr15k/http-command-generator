@@ -234,6 +234,19 @@ dataset('scenarios', [
         ],
     ],
 
+    'request with form data must auto encode' => [
+        'method' => 'POST',
+        'url' => 'https://example.com/api',
+        'body' => [
+            'type' => 'form',
+            'data' => ['key with spaces' => 'value with spaces', 'key&with=special#chars' => 'value&with=special#chars'],
+        ],
+        'expected' => [
+            'curl' => "curl --location --request POST 'https://example.com/api' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'key%20with%20spaces=value%20with%20spaces' --data-urlencode 'key%26with%3Dspecial%23chars=value%26with%3Dspecial%23chars'",
+            'wget' => "wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: application/x-www-form-urlencoded' --body-data 'key%20with%20spaces=value%20with%20spaces&key%26with%3Dspecial%23chars=value%26with%3Dspecial%23chars' 'https://example.com/api'",
+        ],
+    ],
+
     'request with multipart form data' => [
         'method' => 'POST',
         'url' => 'https://example.com/api',
