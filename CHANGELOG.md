@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.1.2] - 2025-06-19
+### Fixed
+- Passing test suite
+
 ## [v0.1.1] - 2025-06-19
 ### Fixed
 - x-www-form-urlencoded form data now encodes by default
