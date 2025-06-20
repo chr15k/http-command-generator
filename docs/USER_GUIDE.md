@@ -332,7 +332,7 @@ $wget = HttpCommand::get('https://api.example.com/users')
 
 ## Line Break Formatting
 
-For better readability, especially when working with complex commands or when copying commands for use in scripts, you can enable line break formatting using the `includeLineBreaks()` method. This will format the command with line breaks and backslashes for continuation, similar to how Postman's cURL generator formats commands.
+For better readability, especially when working with complex commands or when copying commands for use in scripts, you can enable line break formatting using the `includeLineBreaks()` method. This will format the command with line breaks and backslashes for continuation.
 
 ### Basic Usage
 
