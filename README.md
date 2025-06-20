@@ -7,8 +7,6 @@
     <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="License" src="https://img.shields.io/packagist/l/chr15k/http-command-generator"></a>
 </p>
 
----
-
 A PHP library for API testing that generates HTTP CLI commands with a fluent builder API and built-in authentication support.
 
 > [!NOTE]
