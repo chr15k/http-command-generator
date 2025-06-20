@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.1.1] - 2025-06-19
+### Fixed
+- x-www-form-urlencoded form data now encodes by default
+
 ## [v0.1.0] - 2025-06-18
+### Added
 - Adds First Version
 - Includes request builder system with fluent API
 - Supports GET, POST, PUT, PATCH, DELETE, HEAD, and OPTIONS methods
