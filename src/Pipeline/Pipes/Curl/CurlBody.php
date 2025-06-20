@@ -58,7 +58,7 @@ final readonly class CurlBody implements Pipe
         $return = [];
         foreach ($decoded as $key => $value) {
             $key = rawurlencode($key);
-            $value = rawurlencode($value);
+            $value = rawurlencode((string) $value);
             $return[] = " --data-urlencode '$key=$value'";
         }
 
