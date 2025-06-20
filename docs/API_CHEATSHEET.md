@@ -118,7 +118,7 @@ HttpCommand::get('https://api.example.com')
     ->query('filter', 'status:active OR type:premium')
     ->encodeQuery()
     ->toCurl();
-// Results in: ?filter=status%3Aactive+OR+type%3Apremium
+// Results in: ?filter=status%3Aactive%20OR%20type%3Apremium
 ```
 
 ## Line Break Formatting

@@ -279,8 +279,8 @@ $curl = HttpCommand::post('https://api.example.com/form')
 
 // Output: curl --location --request POST 'https://api.example.com/form' \
 //  --header "Content-Type: application/x-www-form-urlencoded" \
-//  --data-urlencode "name=John Doe" \
-//  --data-urlencode "email=john@example.com"
+//  --data-urlencode "name=John%20Doe" \
+//  --data-urlencode "email=john%40example.com"
 
 // Form URL-encoded data with wget
 $wget = HttpCommand::post('https://api.example.com/form')
@@ -292,7 +292,7 @@ $wget = HttpCommand::post('https://api.example.com/form')
 
 // Output: wget --no-check-certificate --quiet --method POST --timeout=0 \
 //  --header 'Content-Type: application/x-www-form-urlencoded' \
-//  --body-data 'name=John+Doe&email=john%40example.com' \
+//  --body-data 'name=John%20Doe&email=john%40example.com' \
 //  'https://api.example.com/form'
 ```
 
