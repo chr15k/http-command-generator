@@ -13,6 +13,7 @@ use Chr15k\HttpCommand\DataTransfer\Body\FormUrlEncodedData;
 use Chr15k\HttpCommand\DataTransfer\Body\JsonBodyData;
 use Chr15k\HttpCommand\DataTransfer\Body\MultipartFormData;
 use Chr15k\HttpCommand\DataTransfer\RequestData;
+use Chr15k\HttpCommand\Enums\HttpMethod;
 use Chr15k\HttpCommand\Generators\CurlGenerator;
 use Chr15k\HttpCommand\Generators\WgetGenerator;
 use InvalidArgumentException;
@@ -24,7 +25,7 @@ final class CommandBuilder implements Builder
 {
     private string $url = '';
 
-    private string $method = 'GET';
+    private HttpMethod $method = HttpMethod::GET;
 
     /**
      * @var array<string, array<int, string>>
@@ -82,7 +83,7 @@ final class CommandBuilder implements Builder
         return $this;
     }
 
-    public function method(string $method): self
+    public function method(HttpMethod $method): self
     {
         $this->method = $method;
 

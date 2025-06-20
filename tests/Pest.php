@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Chr15k\AuthGenerator\Enums\Algorithm;
 use Chr15k\AuthGenerator\Enums\DigestAlgorithm;
 use Chr15k\HttpCommand\Builder\CommandBuilder;
+use Chr15k\HttpCommand\Enums\HttpMethod;
 use Chr15k\HttpCommand\HttpCommand;
 
 /*
@@ -55,7 +56,10 @@ function buildCommand(array $scenario): CommandBuilder
         'PUT' => HttpCommand::put($url),
         'PATCH' => HttpCommand::patch($url),
         'DELETE' => HttpCommand::delete($url),
-        default => HttpCommand::get($url)->method($method)
+        'HEAD' => HttpCommand::head($url),
+        'OPTIONS' => HttpCommand::options($url),
+        default => HttpCommand::url($url)
+            ->method(HttpMethod::tryFrom($method))
     };
 
     if (! empty($scenario['headers'])) {
@@ -116,12 +120,14 @@ function buildCommand(array $scenario): CommandBuilder
     if ($auth = $scenario['auth'] ?? null) {
         $authBuilder = $command->auth();
 
+        $method = HttpMethod::tryFrom($auth['method'] ?? 'GET');
+
         switch ($auth['type']) {
             case 'basic':
                 $authBuilder->basic($auth['username'], $auth['password']);
                 break;
             case 'bearer':
-                $authBuilder->bearerToken($auth['token']);
+                $authBuilder->bearer($auth['token']);
                 break;
             case 'digest':
                 $authBuilder->digest(
@@ -129,7 +135,7 @@ function buildCommand(array $scenario): CommandBuilder
                     $auth['password'] ?? '',
                     $auth['algorithm'] ?? DigestAlgorithm::MD5,
                     $auth['realm'] ?? '',
-                    $auth['method'] ?? 'GET',
+                    $method,
                     $auth['uri'] ?? '',
                     $auth['nonce'] ?? '',
                     $auth['nc'] ?? '',

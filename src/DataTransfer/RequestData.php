@@ -6,6 +6,7 @@ namespace Chr15k\HttpCommand\DataTransfer;
 
 use Chr15k\HttpCommand\Contracts\AuthDataTransfer;
 use Chr15k\HttpCommand\Contracts\BodyDataTransfer;
+use Chr15k\HttpCommand\Enums\HttpMethod;
 
 /**
  * @internal
@@ -17,7 +18,7 @@ final readonly class RequestData
      * @param  array<string, array<int, string>|string>  $queries
      */
     public function __construct(
-        public string $method = '',
+        public HttpMethod $method = HttpMethod::GET,
         public string $url = '',
         public array $headers = [],
         public array $queries = [],

@@ -19,7 +19,7 @@ final class WgetMethod implements Pipe
             '%s%s--method %s',
             $data->output,
             $data->separator(),
-            $data->method
+            $data->method->value
         );
 
         $data = $data->copyWithOutput($output);

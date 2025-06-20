@@ -6,6 +6,7 @@ namespace Chr15k\HttpCommand\DataTransfer\Auth;
 
 use Chr15k\AuthGenerator\Enums\DigestAlgorithm;
 use Chr15k\HttpCommand\Contracts\AuthDataTransfer;
+use Chr15k\HttpCommand\Enums\HttpMethod;
 use SensitiveParameter;
 
 /**
@@ -18,7 +19,7 @@ final readonly class DigestAuthData implements AuthDataTransfer
         #[SensitiveParameter] public string $password = '',
         public DigestAlgorithm $algorithm = DigestAlgorithm::MD5,
         public string $realm = '',
-        public string $method = 'GET',
+        public HttpMethod $method = HttpMethod::GET,
         public string $uri = '/',
         public string $nonce = '',
         public string $nc = '',

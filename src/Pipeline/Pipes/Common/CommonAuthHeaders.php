@@ -84,7 +84,7 @@ final readonly class CommonAuthHeaders implements Pipe
             ->password($auth->password ?? '')
             ->algorithm($auth->algorithm)
             ->realm($auth->realm)
-            ->method($auth->method)
+            ->method($auth->method->value)
             ->uri($auth->uri)
             ->nonce($auth->nonce)
             ->nonceCount($auth->nc)

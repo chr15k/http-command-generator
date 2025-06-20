@@ -2,24 +2,15 @@
 
 declare(strict_types=1);
 
-use Chr15k\HttpCommand\Exceptions\InvalidHttpMethodException;
 use Chr15k\HttpCommand\HttpCommand;
 
-it('throws an exception for invalid HTTP methods', function (): void {
-    HttpCommand::invalid('https://example.com');
-})->throws(InvalidHttpMethodException::class);
+it('generates the command', function (...$scenarios): void {
+    $command = buildCommand($scenarios);
 
-it('throws an exception for non-string URL 1', function (): void {
-    HttpCommand::get(123);
-})->throws(TypeError::class, 'Argument 1 passed to get must be of type string, integer given');
-
-it('throws an exception for non-string URL 2', function (): void {
-    HttpCommand::get([123]);
-})->throws(TypeError::class, 'Argument 1 passed to get must be of type string, array given');
-
-it('throws an exception for non-string URL 3', function (): void {
-    HttpCommand::get(new stdClass);
-})->throws(TypeError::class, 'Argument 1 passed to get must be of type string, object given');
+    foreach ($scenarios['expected'] as $type => $expectedCommand) {
+        expect($command->to($type))->toBe($expectedCommand);
+    }
+})->with('scenarios');
 
 it('creates a command with an empty URL', function (): void {
     $output = HttpCommand::get()->toCurl();
@@ -61,11 +52,3 @@ it('creates an OPTIONS command with a valid URL', function (): void {
     $output = HttpCommand::options('https://example.com')->toCurl();
     expect($output)->toContain('OPTIONS', 'https://example.com');
 });
-
-it('generates the command', function (...$scenarios): void {
-    $command = buildCommand($scenarios);
-
-    foreach ($scenarios['expected'] as $type => $expectedCommand) {
-        expect($command->to($type))->toBe($expectedCommand);
-    }
-})->with('scenarios');

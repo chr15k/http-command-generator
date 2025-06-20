@@ -13,6 +13,7 @@ use Chr15k\HttpCommand\DataTransfer\Auth\BasicAuthData;
 use Chr15k\HttpCommand\DataTransfer\Auth\BearerTokenData;
 use Chr15k\HttpCommand\DataTransfer\Auth\DigestAuthData;
 use Chr15k\HttpCommand\DataTransfer\Auth\JWTData;
+use Chr15k\HttpCommand\Enums\HttpMethod;
 
 /**
  * @internal
@@ -65,7 +66,7 @@ final readonly class AuthBuilder implements Builder
         string $password = '',
         DigestAlgorithm $algorithm = DigestAlgorithm::MD5,
         string $realm = '',
-        string $method = 'GET',
+        HttpMethod $method = HttpMethod::GET,
         string $uri = '/',
         string $nonce = '',
         string $nc = '',
@@ -90,10 +91,20 @@ final readonly class AuthBuilder implements Builder
         ));
     }
 
-    public function bearerToken(string $token): CommandBuilder
+    public function bearer(string $token): CommandBuilder
     {
         return $this->setAuthOnBuilder(new BearerTokenData(token: $token));
     }
+
+    /**
+     * @deprecated use bearer()
+     *
+     * @codeCoverageIgnoreStart
+     */
+    public function bearerToken(string $token): CommandBuilder
+    {
+        return $this->bearer(token: $token);
+    } // @codeCoverageIgnoreEnd
 
     private function setAuthOnBuilder(AuthDataTransfer $auth): CommandBuilder
     {
