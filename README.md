@@ -1,12 +1,10 @@
 # HTTP Command Generator
 
-<p align="center">
-    <p align="center">
-        <a href="https://github.com/chr15k/http-command-generator/actions"><img alt="GitHub Workflow Status (main)" src="https://img.shields.io/github/actions/workflow/status/chr15k/http-command-generator/main.yml"></a>
-        <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="Total Downloads" src="https://img.shields.io/packagist/dt/chr15k/http-command-generator"></a>
-        <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="Latest Version" src="https://img.shields.io/packagist/v/chr15k/http-command-generator"></a>
-        <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="License" src="https://img.shields.io/packagist/l/chr15k/http-command-generator"></a>
-    </p>
+<p>
+    <a href="https://github.com/chr15k/http-command-generator/actions"><img alt="GitHub Workflow Status (main)" src="https://img.shields.io/github/actions/workflow/status/chr15k/http-command-generator/main.yml"></a>
+    <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="Total Downloads" src="https://img.shields.io/packagist/dt/chr15k/http-command-generator"></a>
+    <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="Latest Version" src="https://img.shields.io/packagist/v/chr15k/http-command-generator"></a>
+    <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="License" src="https://img.shields.io/packagist/l/chr15k/http-command-generator"></a>
 </p>
 
 ---
