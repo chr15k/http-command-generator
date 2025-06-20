@@ -87,7 +87,7 @@ use Chr15k\HttpCommand\HttpCommand;
 
 // Using a Bearer Token with cURL
 $curl = HttpCommand::get('https://api.example.com/protected-resource')
-    ->auth()->bearerToken('your-access-token')
+    ->auth()->bearer('your-access-token')
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/protected-resource' \
@@ -95,7 +95,7 @@ $curl = HttpCommand::get('https://api.example.com/protected-resource')
 
 // Using a Bearer Token with wget
 $wget = HttpCommand::get('https://api.example.com/protected-resource')
-    ->auth()->bearerToken('your-access-token')
+    ->auth()->bearer('your-access-token')
     ->toWget();
 
 // Output: wget --no-check-certificate --quiet --method GET --timeout=0 \
@@ -218,9 +218,6 @@ $patch = HttpCommand::patch('https://api.example.com/users/1');     // PATCH
 $delete = HttpCommand::delete('https://api.example.com/users/1');   // DELETE
 $head = HttpCommand::head('https://api.example.com/users/1');       // HEAD
 $options = HttpCommand::options('https://api.example.com/users');   // OPTIONS
-
-// You can also set a custom method
-$custom = HttpCommand::get()->method('CONNECT')->url('https://api.example.com');
 ```
 
 ### Query Parameters and Headers
@@ -237,7 +234,7 @@ $curl = HttpCommand::get('https://api.example.com/search')
     ->query('q', 'test')
     ->query('page', '1')
     ->query('limit', '10')
-    ->auth()->bearerToken('your-token')
+    ->auth()->bearer('your-token')
     ->toCurl();
 
 // Output: curl --location --request GET 'https://api.example.com/search?q=test&page=1&limit=10' \
@@ -373,7 +370,7 @@ $curl = HttpCommand::get('https://api.example.com/data')
 // Headers can be mixed with other methods in any order
 $request = HttpCommand::post('https://api.example.com/users')
     ->header('Accept', 'application/json')
-    ->auth()->bearerToken('token123')
+    ->auth()->bearer('token123')
     ->header('Content-Type', 'application/json')
     ->query('notify', 'true')
     ->header('X-Request-ID', 'req-456')

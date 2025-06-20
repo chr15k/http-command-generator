@@ -67,8 +67,11 @@ $builder = HttpCommand::put('https://api.example.com/users/1');
 $builder = HttpCommand::delete('https://api.example.com/users/1');
 
 // Or change the method after creation
-$builder = HttpCommand::get();
-$builder->method('PATCH')->url('https://api.example.com/users/1');
+
+use Chr15k\HttpCommand\Enums\HttpMethod;
+
+$builder = HttpCommand::url('https://api.example.com/users/1');
+$builder->method(HttpMethod::PATCH);
 ```
 
 ## Working with Headers
@@ -88,7 +91,7 @@ $builder->header('Accept', 'application/json')
 // Headers can be added throughout the chain
 $curl = HttpCommand::get('https://api.example.com/users')
     ->header('Accept', 'application/json')
-    ->auth()->bearerToken('your-token')
+    ->auth()->bearer('your-token')
     ->header('X-Request-ID', 'req-123')
     ->query('page', '1')
     ->header('Cache-Control', 'no-cache')
@@ -102,7 +105,7 @@ $curl = HttpCommand::get('https://api.example.com/users')
 Add a Bearer token to your request:
 
 ```php
-$builder->auth()->bearerToken('your-access-token');
+$builder->auth()->bearer('your-access-token');
 ```
 
 This will add the `Authorization: Bearer your-access-token` header to your request.
@@ -372,7 +375,7 @@ $command = HttpCommand::post('https://api.example.com/users')
     ->header('User-Agent', 'MyApp/1.0')
     ->query('notify', 'true')
     ->query('source', 'api')
-    ->auth()->bearerToken('your-access-token')
+    ->auth()->bearer('your-access-token')
     ->json([
         'name' => 'John Doe',
         'email' => 'john@example.com',
@@ -436,14 +439,14 @@ use Chr15k\HttpCommand\HttpCommand;
 $command = HttpCommand::post('https://api.example.com/users')
     ->includeLineBreaks()  // Can be called early
     ->header('Accept', 'application/json')
-    ->auth()->bearerToken('token')
+    ->auth()->bearer('token')
     ->json(['name' => 'John'])
     ->toCurl();
 
 // Or at the end before generation
 $command = HttpCommand::post('https://api.example.com/users')
     ->header('Accept', 'application/json')
-    ->auth()->bearerToken('token')
+    ->auth()->bearer('token')
     ->json(['name' => 'John'])
     ->includeLineBreaks()  // Can be called late
     ->toCurl();
@@ -466,13 +469,13 @@ use Chr15k\HttpCommand\HttpCommand;
 // Using cURL
 $curl = HttpCommand::get('https://api.example.com/search?q=test&page=1')
     ->header('Accept', 'application/json')
-    ->auth()->bearerToken('your-access-token')
+    ->auth()->bearer('your-access-token')
     ->toCurl();
 
 // Using wget
 $wget = HttpCommand::get('https://api.example.com/search?q=test&page=1')
     ->header('Accept', 'application/json')
-    ->auth()->bearerToken('your-access-token')
+    ->auth()->bearer('your-access-token')
     ->toWget();
 ```
 
@@ -511,7 +514,7 @@ $curl = HttpCommand::post('https://api.example.com/upload')
 use Chr15k\HttpCommand\HttpCommand;
 
 $curl = HttpCommand::put('https://api.example.com/users/123')
-    ->auth()->bearerToken('your-access-token')
+    ->auth()->bearer('your-access-token')
     ->json([
         'name' => 'John Updated',
         'email' => 'john.updated@example.com'
@@ -543,7 +546,7 @@ $curl = HttpCommand::delete('https://api.example.com/users/123')
 use Chr15k\HttpCommand\HttpCommand;
 
 $wget = HttpCommand::delete('https://api.example.com/users/123')
-    ->auth()->bearerToken('your-access-token')
+    ->auth()->bearer('your-access-token')
     ->toWget();
 
 // Output: wget --no-check-certificate --quiet --method DELETE --timeout=0 \
@@ -571,7 +574,7 @@ $curl = HttpCommand::get('https://api.example.com/search')
     ->header('Accept', 'application/json')
     ->query('category', 'books')
     ->query('page', '2')
-    ->auth()->bearerToken('token123')
+    ->auth()->bearer('token123')
     ->query('limit', '20')
     ->toCurl();
 
@@ -618,7 +621,7 @@ $curl = HttpCommand::post('https://api.example.com/users')
     ->header('User-Agent', 'MyApp/1.0.0')
     ->query('notify', 'true')
     ->query('source', 'api')
-    ->auth()->bearerToken('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...')
+    ->auth()->bearer('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...')
     ->json([
         'name' => 'John Doe',
         'email' => 'john.doe@example.com',
@@ -629,7 +632,7 @@ $curl = HttpCommand::post('https://api.example.com/users')
 // The same request can be built in a different order
 $curl = HttpCommand::post()
     ->url('https://api.example.com/users')
-    ->auth()->bearerToken('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...')
+    ->auth()->bearer('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...')
     ->query('notify', 'true')
     ->header('Accept', 'application/json')
     ->json(['name' => 'John Doe', 'email' => 'john.doe@example.com'])
@@ -715,7 +718,7 @@ $debugRequest = HttpCommand::post('https://staging-api.example.com/test')
     ->query('debug', 'true')
     ->query('verbose', '1')
     ->query('trace_id', 'trace_' . time())
-    ->auth()->bearerToken('dev-token-123')
+    ->auth()->bearer('dev-token-123')
     ->json([
         'test_data' => true,
         'environment' => 'staging',
@@ -734,7 +737,7 @@ $request = HttpCommand::get('https://api.example.com/users')
 
 // Add authentication if available
 if ($authToken) {
-    $request->auth()->bearerToken($authToken);
+    $request->auth()->bearer($authToken);
 }
 
 // Add pagination parameters
