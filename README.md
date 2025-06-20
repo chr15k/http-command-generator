@@ -1,6 +1,14 @@
 # HTTP Command Generator
 
-[![Latest Stable Version](https://poser.pugx.org/chr15k/http-command-generator/v)](https://packagist.org/packages/chr15k/http-command-generator) [![Total Downloads](https://poser.pugx.org/chr15k/http-command-generator/downloads)](https://packagist.org/packages/chr15k/http-command-generator) [![Latest Unstable Version](https://poser.pugx.org/chr15k/http-command-generator/v/unstable)](https://packagist.org/packages/chr15k/http-command-generator) [![License](https://poser.pugx.org/chr15k/http-command-generator/license)](https://packagist.org/packages/chr15k/http-command-generator) [![PHP Version Require](https://poser.pugx.org/chr15k/http-command-generator/require/php)](https://packagist.org/packages/chr15k/http-command-generator)
+<p align="center">
+    <p align="center">
+        <a href="https://github.com/chr15k/http-command-generator/actions"><img alt="GitHub Workflow Status (main)" src="https://img.shields.io/github/actions/workflow/status/chr15k/http-command-generator/main.yml"></a>
+        <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="Total Downloads" src="https://img.shields.io/packagist/dt/chr15k/http-command-generator"></a>
+        <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="Latest Version" src="https://img.shields.io/packagist/v/chr15k/http-command-generator"></a>
+        <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="License" src="https://img.shields.io/packagist/l/chr15k/http-command-generator"></a>
+    </p>
+</p>
+
 
 A PHP library for generating HTTP CLI commands with a fluent builder API and authentication support.
 
