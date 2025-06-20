@@ -121,20 +121,6 @@ HttpCommand::get('https://api.example.com')
 // Results in: ?filter=status%3Aactive+OR+type%3Apremium
 ```
 
-### Custom Body Data Transfer Objects
-```php
-// For advanced use cases, implement BodyDataTransfer interface
-use Chr15k\HttpCommand\Contracts\BodyDataTransfer;
-
-class CustomBodyData implements BodyDataTransfer {
-    // Implementation details...
-}
-
-HttpCommand::post('https://api.example.com')
-    ->body(new CustomBodyData())
-    ->toCurl();
-```
-
 ## Line Break Formatting
 
 Format commands with line breaks for better readability:
