@@ -30,7 +30,7 @@ This guide provides comprehensive examples of how to use the HTTP Command Genera
 
 ## Introduction
 
-HTTP Command Generator is a PHP library that allows you to generate CLI commands for HTTP requests using a fluent builder pattern. It supports cURL and wget commands out of the box and is designed to be extended to support other command formats.
+HTTP Command Generator is a PHP library that allows you to generate CLI commands for HTTP requests using a fluent builder pattern.
 
 ## Getting Started
 
