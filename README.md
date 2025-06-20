@@ -1,5 +1,6 @@
+# HTTP Command Generator
+
 <p align="center">
-    <img width="400" alt="Logo" src="https://github.com/user-attachments/assets/1611771e-9d16-4194-b0ff-0ac6f6569241" />
     <p align="center">
         <a href="https://github.com/chr15k/http-command-generator/actions"><img alt="GitHub Workflow Status (main)" src="https://img.shields.io/github/actions/workflow/status/chr15k/http-command-generator/main.yml"></a>
         <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="Total Downloads" src="https://img.shields.io/packagist/dt/chr15k/http-command-generator"></a>
