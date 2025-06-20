@@ -10,7 +10,7 @@
 
 ---
 
-A PHP library for generating HTTP CLI commands with a fluent builder API and authentication support.
+A PHP library for API testing that generates HTTP CLI commands with a fluent builder API and built-in authentication support.
 
 > [!NOTE]
 > CLI tools currently supported are [cURL](https://curl.se/) and [wget](https://www.gnu.org/software/wget/)
