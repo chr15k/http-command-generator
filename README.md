@@ -7,6 +7,8 @@
     <a href="https://packagist.org/packages/chr15k/http-command-generator"><img alt="License" src="https://img.shields.io/packagist/l/chr15k/http-command-generator"></a>
 </p>
 
+### 📦 Overview
+
 http-command-generator is a fluent PHP library for building curl commands and other HTTP CLI requests programmatically.
 
 Designed for developers who want to generate real, runnable HTTP requests—not just send them—this package is perfect for:
@@ -17,7 +19,8 @@ Designed for developers who want to generate real, runnable HTTP requests—not 
 
 With a clear fluent API, you can dynamically build requests with full control over methods, headers, query parameters, payloads, and authentication.
 
-✨ Features
+### ✨ Features
+
 - ✅ Fluent builder for curl and wget commands
 - ✅ Supports headers, query params, JSON bodies, and files
 - ✅ Built-in auth integration 
