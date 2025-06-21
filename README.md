@@ -37,18 +37,6 @@ Requires [PHP 8.2+](https://www.php.net/releases/)
 composer require chr15k/http-command-generator
 ```
 
-## Features
-
-- **Fluent Builder API**: Construct HTTP requests with a clean, chainable interface - mix headers, queries, authentication, and body methods in any order
-- **Multiple HTTP Methods**: Support for GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS and custom methods
-- **Method Chaining**: All builder methods (`header()`, `query()`, `auth()`, etc.) are chainable
-- **Multiple Command Generators**: Generate cURL and wget commands from the same request definition using `toCurl()`, `toWget()`, or `to('generator')`
-- **Authentication Options**: Basic Auth, Bearer Token, API Key, JWT, and Digest Auth
-- **Body Formats**: JSON, form URL-encoded, multipart form data, and binary file data
-- **Query Parameter Control**: Enable/disable URL encoding with `encodeQuery()` method
-- **Line Break Formatting**: Generate commands with line breaks using `includeLineBreaks()` method
-- **Zero External Dependencies**: Only requires chr15k/php-auth-generator for advanced auth options
-
 ## Basic Usage
 
 ### Simple GET Request
