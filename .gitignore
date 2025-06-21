@@ -12,5 +12,4 @@
 *.swo
 /.peck.cache
 /tests/.peck-test.cache
-vendor
-composer.lock
+.DS_Store

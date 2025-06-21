@@ -603,4 +603,17 @@ dataset('scenarios', [
             'wget' => "wget --no-check-certificate --quiet \\\n --method GET \\\n --timeout=0 \\\n --header 'Authorization: Bearer your_token_here' \\\n 'https://example.com/api'",
         ],
     ],
+
+    'request with pre-encoded query parameters in the URL should not double encode when merging with queries' => [
+        'method' => 'GET',
+        'url' => 'https://example.com/api?param1=value%201with%20spaces',
+        'queries' => [
+            'param2' => 'value&with=special#chars',
+        ],
+        'encodeQuery' => true,
+        'expected' => [
+            'curl' => "curl --location --request GET 'https://example.com/api?param1=value%201with%20spaces&param2=value%26with%3Dspecial%23chars'",
+            'wget' => "wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api?param1=value%201with%20spaces&param2=value%26with%3Dspecial%23chars'",
+        ],
+    ],
 ]);
