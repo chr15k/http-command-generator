@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.1.7] - 2025-06-21
+### Changed
+- update .gitattributes
+- update .gitignore
+
+### Added
+- add test to ensure params pre-encoded in the URL are not double encoded when merged back in with custom queries
+
 ## [v0.1.6] - 2025-06-21
 ### Fixed
 - update composer.json to use latest chr15k/php-auth-generator version
