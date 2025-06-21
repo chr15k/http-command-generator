@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.1.4] - 2025-06-21
+### Changed
+- updated readme & main.yml
+
 ## [v0.1.3] - 2025-06-20
 ### Fixed
 - remove magic method from HttpCommand class for clearer readability and usage
