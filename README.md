@@ -17,12 +17,11 @@ Designed for developers who want to generate real, runnable HTTP requests—not 
 
 With a clear fluent API, you can dynamically build requests with full control over methods, headers, query parameters, payloads, and authentication.
 
-Built with zero dependencies to keep your stack lean and fast.
-
 ✨ Features
 - ✅ Fluent builder for curl and wget commands
 - ✅ Supports headers, query params, JSON bodies, and files
-- ✅ Built-in auth integration (via chr15k/php-auth-generator)
+- ✅ Built-in auth integration 
+- ✅ Zero external dependencies
 
 > [!NOTE]
 > CLI tools currently supported are [cURL](https://curl.se/) and [wget](https://www.gnu.org/software/wget/)
