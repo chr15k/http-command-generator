@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Chr15k\HttpCommand\Collections;
 
 use Chr15k\HttpCommand\Contracts\Collection;
+use Chr15k\HttpCommand\Utils\Type;
 
 /**
  * @internal
@@ -67,12 +68,13 @@ final class HttpParameterCollection implements Collection
         $instance->items = $this->items;
 
         foreach ($params as $key => $values) {
-            if (is_array($values)) {
-                foreach ($values as $value) {
+            if (! is_array($values)) {
+                $values = [$values];
+            }
+            foreach ($values as $value) {
+                if (Type::isStringCastable($value)) {
                     $instance->add($key, (string) $value);
                 }
-            } else {
-                $instance->add($key, (string) $values);
             }
         }
 

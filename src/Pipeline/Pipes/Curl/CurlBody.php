@@ -10,6 +10,7 @@ use Chr15k\HttpCommand\DataTransfer\Body\FormUrlEncodedData;
 use Chr15k\HttpCommand\DataTransfer\Body\JsonBodyData;
 use Chr15k\HttpCommand\DataTransfer\Body\MultipartFormData;
 use Chr15k\HttpCommand\DataTransfer\RequestData;
+use Chr15k\HttpCommand\Utils\Type;
 use Closure;
 
 /**
@@ -56,11 +57,20 @@ final readonly class CurlBody implements Pipe
         }
 
         $return = [];
-        foreach ($decoded as $key => $value) {
-            $key = rawurlencode($key);
-            $value = rawurlencode((string) $value);
-            $prefix = $data->separator();
-            $return[] = "$prefix--data-urlencode '$key=$value'";
+        foreach ($decoded as $key => $values) {
+            if (! is_array($values)) {
+                $values = [$values];
+            }
+            foreach ($values as $value) {
+                if (Type::isStringCastable($value)) {
+                    $return[] = sprintf(
+                        "%s--data-urlencode '%s=%s'",
+                        $data->separator(),
+                        rawurlencode($key),
+                        rawurlencode((string) $value)
+                    );
+                }
+            }
         }
 
         return trim(implode('', $return));
@@ -77,9 +87,20 @@ final readonly class CurlBody implements Pipe
         }
 
         $return = [];
-        foreach ($decoded as $key => $value) {
-            $prefix = $data->separator();
-            $return[] = "$prefix--form '$key=$value'";
+        foreach ($decoded as $key => $values) {
+            if (! is_array($values)) {
+                $values = [$values];
+            }
+            foreach ($values as $value) {
+                if (Type::isStringCastable($value)) {
+                    $return[] = sprintf(
+                        "%s--form '%s=%s'",
+                        $data->separator(),
+                        $key,
+                        (string) $value
+                    );
+                }
+            }
         }
 
         return trim(implode('', $return));

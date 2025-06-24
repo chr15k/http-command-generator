@@ -17,7 +17,9 @@ This guide provides comprehensive examples of how to use the HTTP Command Genera
 - [Request Bodies](#request-bodies)
   - [JSON Bodies](#json-bodies)
   - [Form URL-encoded](#form-url-encoded)
+    - [Multi-Value Array Keys](#multi-value-array-keys)
   - [Multipart Form Data](#multipart-form-data)
+    - [Multi-Value Array Keys in Multipart Data](#multi-value-array-keys-in-multipart-data)
   - [Binary Data](#binary-data)
 - [Command Generators](#command-generators)
   - [Generic to() Method](#generic-to-method)
@@ -27,6 +29,10 @@ This guide provides comprehensive examples of how to use the HTTP Command Genera
 - [Full Examples](#full-examples)
 - [Query Parameters](#query-parameters)
 - [Advanced Method Chaining Examples](#advanced-method-chaining-examples)
+  - [Complex API Request with Multiple Features](#complex-api-request-with-multiple-features)
+  - [Search API with Pagination and Filtering](#search-api-with-pagination-and-filtering)
+  - [Form Submission with Multi-Value Arrays](#form-submission-with-multi-value-arrays)
+  - [File Upload with Multiple Files and Metadata](#file-upload-with-multiple-files-and-metadata)
 
 ## Introduction
 
@@ -257,6 +263,57 @@ $builder->form([
 ]);
 ```
 
+#### Multi-Value Array Keys
+
+Both form URL-encoded and multipart form data support multi-value array keys, allowing you to send multiple values for the same field name:
+
+```php
+// Single values (standard approach)
+$builder->form([
+    'name' => 'John Doe',
+    'category' => 'technology'
+]);
+
+// Multi-value arrays - useful for checkboxes, multiple selections, etc.
+$builder->form([
+    'categories' => ['technology', 'programming', 'web-development'],
+    'skills' => ['PHP', 'JavaScript', 'Python'],
+    'tags' => ['api', 'rest', 'http']
+]);
+
+// Mixed single values and multi-value arrays
+$builder->form([
+    'name' => 'John Doe',
+    'categories' => ['technology', 'programming'],  // Multiple values
+    'primary_skill' => 'PHP',                       // Single value
+    'languages' => ['English', 'Spanish']           // Multiple values
+]);
+```
+
+**Generated Output for Multi-Value Keys:**
+
+For curl, each value gets its own `--data-urlencode` parameter:
+```bash
+curl --location --request POST 'https://api.example.com/form' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'categories=technology' \
+  --data-urlencode 'categories=programming' \
+  --data-urlencode 'categories=web-development'
+```
+
+For wget, values are combined in the query string format:
+```bash
+wget --method POST \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --body-data 'categories=technology&categories=programming&categories=web-development' \
+  'https://api.example.com/form'
+```
+
+**Important Notes:**
+- Only scalar values (strings, numbers) and null values are allowed in multi-value arrays
+- Nested arrays or objects within the array values will be filtered out
+- Empty or null values are preserved and sent as empty fields
+
 ### Multipart Form Data
 
 Add multipart form data to your request (useful for file uploads):
@@ -266,6 +323,45 @@ $builder->multipart([
     'profile_picture' => '@/path/to/image.jpg',
     'name' => 'John Doe'
 ]);
+```
+
+#### Multi-Value Array Keys in Multipart Data
+
+Just like form URL-encoded data, multipart form data also supports multi-value arrays:
+
+```php
+// File uploads with multiple files
+$builder->multipart([
+    'documents' => ['@/path/to/doc1.pdf', '@/path/to/doc2.pdf'],
+    'images' => ['@/path/to/image1.jpg', '@/path/to/image2.png'],
+    'name' => 'John Doe'
+]);
+
+// Mixed file uploads and regular fields
+$builder->multipart([
+    'profile_picture' => '@/path/to/profile.jpg',
+    'gallery_images' => ['@/path/to/img1.jpg', '@/path/to/img2.jpg'],
+    'tags' => ['personal', 'portfolio'],
+    'description' => 'My portfolio images'
+]);
+```
+
+**Generated Output for Multi-Value Multipart:**
+
+For curl, each value gets its own `--form` parameter:
+```bash
+curl --location --request POST 'https://api.example.com/upload' \
+  --form 'documents=@/path/to/doc1.pdf' \
+  --form 'documents=@/path/to/doc2.pdf' \
+  --form 'tags=personal' \
+  --form 'tags=portfolio'
+```
+
+For wget, values are formatted as standard form data:
+```bash
+wget --method POST \
+  --body-data 'documents=@/path/to/doc1.pdf&documents=@/path/to/doc2.pdf&tags=personal&tags=portfolio' \
+  'https://api.example.com/upload'
 ```
 
 ### Binary Data
@@ -663,113 +759,66 @@ $wget = $searchCommand->toWget();
 $generic = $searchCommand->to('curl'); // Same as toCurl()
 ```
 
-### File Upload with Authentication
+### Form Submission with Multi-Value Arrays
 
 ```php
-// Upload a file with custom headers and form data
-$uploadCommand = HttpCommand::post('https://api.example.com/files/upload')
+// Real-world example: Job application form with multiple skills and categories
+$jobApplicationCommand = HttpCommand::post('https://api.jobboard.com/applications')
     ->header('Accept', 'application/json')
-    ->header('X-Client-Version', '2.1.0')
-    ->query('folder', 'documents')
-    ->query('overwrite', 'false')
-    ->auth()->basic('username', 'password')
+    ->header('User-Agent', 'JobApp/1.0')
+    ->auth()->bearer('your-access-token')
+    ->form([
+        'name' => 'Jane Smith',
+        'email' => 'jane.smith@example.com',
+        'position' => 'Senior Developer',
+        // Multi-value arrays for skills and interests
+        'skills' => ['PHP', 'JavaScript', 'Python', 'Docker', 'AWS'],
+        'job_categories' => ['backend', 'full-stack', 'devops'],
+        'work_types' => ['remote', 'hybrid'],
+        'experience_level' => 'senior',
+        // Optional fields with arrays
+        'certifications' => ['AWS Certified', 'Docker Certified'],
+        'languages' => ['English', 'Spanish', 'French']
+    ]);
+
+$curl = $jobApplicationCommand->toCurl();
+// This generates multiple --data-urlencode parameters:
+// --data-urlencode 'skills=PHP' --data-urlencode 'skills=JavaScript'
+// --data-urlencode 'skills=Python' --data-urlencode 'skills=Docker'
+// --data-urlencode 'skills=AWS' --data-urlencode 'job_categories=backend' etc.
+
+$wget = $jobApplicationCommand->toWget();
+// This generates: --body-data 'name=Jane+Smith&email=jane.smith@example.com&skills=PHP&skills=JavaScript&skills=Python...'
+```
+
+### File Upload with Multiple Files and Metadata
+
+```php
+// Multi-file upload with additional form data
+$uploadCommand = HttpCommand::post('https://api.fileservice.com/upload')
+    ->header('Accept', 'application/json')
+    ->auth()->apiKey('X-API-Key', 'your-upload-key')
     ->multipart([
-        'file' => '@/path/to/document.pdf',
-        'description' => 'Important document',
-        'tags' => 'work,important'
-    ])
-    ->toCurl();
-```
-
-### API Request with JWT Authentication
-
-```php
-use Chr15k\AuthGenerator\Enums\Algorithm;
-
-// Build a request with JWT authentication and custom claims
-$apiRequest = HttpCommand::get('https://api.example.com/protected/data')
-    ->header('Accept', 'application/json')
-    ->header('Content-Type', 'application/json')
-    ->query('include', 'metadata')
-    ->query('format', 'detailed')
-    ->auth()->jwt(
-        key: 'your-secret-key',
-        payload: [
-            'user_id' => 12345,
-            'role' => 'admin',
-            'permissions' => ['read', 'write'],
-            'exp' => time() + 3600
+        'project_name' => 'Website Redesign',
+        'description' => 'Design assets for the new website',
+        // Multiple file uploads
+        'design_files' => [
+            '@/path/to/homepage.psd',
+            '@/path/to/about.psd',
+            '@/path/to/contact.psd'
         ],
-        algorithm: Algorithm::HS256
-    )
-    ->toCurl();
+        'preview_images' => [
+            '@/path/to/preview1.jpg',
+            '@/path/to/preview2.jpg'
+        ],
+        // Multiple categories and tags
+        'categories' => ['design', 'web', 'ui'],
+        'tags' => ['homepage', 'responsive', 'modern', 'clean'],
+        'client_id' => '12345',
+        'visibility' => 'private'
+    ]);
+
+$curl = $uploadCommand->toCurl();
+// Generates: --form 'design_files=@/path/to/homepage.psd' --form 'design_files=@/path/to/about.psd'
+//           --form 'categories=design' --form 'categories=web' --form 'categories=ui' etc.
 ```
-
-### Debugging and Development Request
-
-```php
-// Build a request for testing with various debugging headers
-$debugRequest = HttpCommand::post('https://staging-api.example.com/test')
-    ->header('Accept', 'application/json')
-    ->header('Content-Type', 'application/json')
-    ->header('X-Debug-Mode', 'true')
-    ->header('X-Request-ID', uniqid('req_'))
-    ->header('X-Client-IP', '192.168.1.100')
-    ->query('debug', 'true')
-    ->query('verbose', '1')
-    ->query('trace_id', 'trace_' . time())
-    ->auth()->bearer('dev-token-123')
-    ->json([
-        'test_data' => true,
-        'environment' => 'staging',
-        'timestamp' => date('c')
-    ])
-    ->// Don't encode query parameters (default)
-    ->toCurl();
-```
-
-### Building Requests Conditionally
-
-```php
-// Start with a base request and add features conditionally
-$request = HttpCommand::get('https://api.example.com/users')
-    ->header('Accept', 'application/json');
-
-// Add authentication if available
-if ($authToken) {
-    $request->auth()->bearer($authToken);
-}
-
-// Add pagination parameters
-if ($page) {
-    $request->query('page', (string)$page);
-}
-
-if ($limit) {
-    $request->query('limit', (string)$limit);
-}
-
-// Add filtering
-if ($status) {
-    $request->query('status', $status);
-}
-
-// Add custom headers for specific environments
-if ($environment === 'development') {
-    $request->header('X-Debug', 'true')
-           ->header('X-Environment', 'dev');
-}
-
-// Generate the final command
-$command = $request->toCurl();
-```
-
-These examples demonstrate the flexibility of the fluent builder pattern. You can:
-
-- **Chain methods in any order** - headers, queries, authentication, and body methods can be called in any sequence
-- **Mix different types of methods** - combine headers, queries, authentication, and body configuration as needed
-- **Build requests incrementally** - start with a base request and add features conditionally
-- **Generate multiple formats** - use the same builder to generate both cURL and wget commands
-- **Reuse builders** - create a base configuration and generate multiple commands from it
-
-The key principle is that each method returns the builder instance, allowing for continuous chaining until you call a generator method (`toCurl()`, `toWget()`, or `to()`).

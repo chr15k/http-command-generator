@@ -50,8 +50,8 @@ Quick reference guide for the HTTP Command Generator library.
 | Method | Description | Example |
 |--------|-------------|---------|
 | `json(array\|string $data, bool $preserveAsRaw = false)` | Add JSON body | `->json(['name' => 'John', 'age' => 30])` |
-| `form(array $data)` | Add form-urlencoded body | `->form(['name' => 'John', 'age' => 30])` |
-| `multipart(array $data)` | Add multipart form data | `->multipart(['file' => '@path/to/file'])` |
+| `form(array $data)` | Add form-urlencoded body (supports multi-value arrays) | `->form(['tags' => ['php', 'api'], 'name' => 'John'])` |
+| `multipart(array $data)` | Add multipart form data (supports multi-value arrays) | `->multipart(['files' => ['@file1.jpg', '@file2.jpg']])` |
 | `file(string $filePath)` | Add binary file content | `->file('/path/to/file.bin')` |
 | `body(BodyDataTransfer $body)` | Add custom body data transfer object | `->body(new CustomBodyData())` |
 
@@ -156,6 +156,31 @@ HttpCommand::get('https://api.example.com/data')
 //   --timeout=0 \
 //   --header 'Accept: application/json' \
 //   'https://api.example.com/data'
+```
+
+### Multi-Value Array Examples
+```php
+// Form with multiple values for the same field
+HttpCommand::post('https://api.example.com/search')
+    ->form([
+        'categories' => ['technology', 'programming'],
+        'skills' => ['PHP', 'JavaScript', 'Python'],
+        'name' => 'John Doe'
+    ])
+    ->toCurl();
+// Generates: --data-urlencode 'categories=technology' --data-urlencode 'categories=programming'
+//           --data-urlencode 'skills=PHP' --data-urlencode 'skills=JavaScript' etc.
+
+// Multipart with multiple files
+HttpCommand::post('https://api.example.com/upload')
+    ->multipart([
+        'documents' => ['@/path/to/doc1.pdf', '@/path/to/doc2.pdf'],
+        'tags' => ['important', 'work'],
+        'description' => 'Project files'
+    ])
+    ->toCurl();
+// Generates: --form 'documents=@/path/to/doc1.pdf' --form 'documents=@/path/to/doc2.pdf'
+//           --form 'tags=important' --form 'tags=work' etc.
 ```
 
 
