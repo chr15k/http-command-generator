@@ -31,7 +31,7 @@ final readonly class CurlBody implements Pipe
             return $next($data);
         }
 
-        $output = trim(sprintf('%s%s%s', $data->output, $data->separator(), $body));
+        $output = trim(sprintf('%s %s', $data->output, $body));
 
         $data = $data->copyWithOutput($output);
 
@@ -42,7 +42,7 @@ final readonly class CurlBody implements Pipe
     {
         $jsonBody = $data->body?->getContent() ?? '';
 
-        return "--data '$jsonBody'";
+        return sprintf("--data '%s'", $jsonBody);
     }
 
     private function getFormUrlEncodedBody(RequestData $data): string
@@ -59,7 +59,8 @@ final readonly class CurlBody implements Pipe
         foreach ($decoded as $key => $value) {
             $key = rawurlencode($key);
             $value = rawurlencode((string) $value);
-            $return[] = " --data-urlencode '$key=$value'";
+            $prefix = $data->separator();
+            $return[] = "$prefix--data-urlencode '$key=$value'";
         }
 
         return trim(implode('', $return));
@@ -77,7 +78,8 @@ final readonly class CurlBody implements Pipe
 
         $return = [];
         foreach ($decoded as $key => $value) {
-            $return[] = " --form '$key=$value'";
+            $prefix = $data->separator();
+            $return[] = "$prefix--form '$key=$value'";
         }
 
         return trim(implode('', $return));

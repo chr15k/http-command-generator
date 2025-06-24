@@ -616,4 +616,21 @@ dataset('scenarios', [
             'wget' => "wget --no-check-certificate --quiet --method GET --timeout=0 'https://example.com/api?param1=value%201with%20spaces&param2=value%26with%3Dspecial%23chars'",
         ],
     ],
+
+    'request with multiple encoded form params and line breaks' => [
+        'method' => 'POST',
+        'url' => 'https://example.com/api',
+        'body' => [
+            'type' => 'form',
+            'data' => [
+                'param1' => 'value with spaces',
+                'param2' => 'value&with=special#chars',
+            ],
+        ],
+        'includeLineBreaks' => true,
+        'expected' => [
+            'curl' => "curl --location \\\n --request POST \\\n 'https://example.com/api' \\\n --header 'Content-Type: application/x-www-form-urlencoded' \\\n --data-urlencode 'param1=value%20with%20spaces' \\\n --data-urlencode 'param2=value%26with%3Dspecial%23chars'",
+            'wget' => "wget --no-check-certificate --quiet \\\n --method POST \\\n --timeout=0 \\\n --header 'Content-Type: application/x-www-form-urlencoded' \\\n --body-data 'param1=value%20with%20spaces&param2=value%26with%3Dspecial%23chars' \\\n 'https://example.com/api'",
+        ],
+    ],
 ]);
