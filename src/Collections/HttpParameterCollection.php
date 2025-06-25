@@ -68,12 +68,9 @@ final class HttpParameterCollection implements Collection
         $instance->items = $this->items;
 
         foreach ($params as $key => $values) {
-            if (! is_array($values)) {
-                $values = [$values];
-            }
-            foreach ($values as $value) {
-                if (Type::isStringCastable($value)) {
-                    $instance->add($key, (string) $value);
+            if (Type::isStringable($key)) {
+                foreach (Type::normalizeToStringableArray($values) as $value) {
+                    $instance->add((string) $key, (string) $value);
                 }
             }
         }
@@ -110,8 +107,8 @@ final class HttpParameterCollection implements Collection
         foreach ($this->items as $key => $values) {
             foreach ($values as $value) {
                 if ($encode) {
-                    $key = rawurlencode($key);
-                    $value = rawurlencode($value);
+                    $key = rawurlencode((string) $key);
+                    $value = rawurlencode((string) $value);
                 }
                 $queryParts[] = "{$key}={$value}";
             }

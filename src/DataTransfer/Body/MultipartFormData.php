@@ -14,7 +14,7 @@ final readonly class MultipartFormData implements BodyDataTransfer
     /**
      * @param  array<string, string|resource>  $data
      */
-    public function __construct(private array $data = [])
+    public function __construct(public array $data = [])
     {
         //
     }

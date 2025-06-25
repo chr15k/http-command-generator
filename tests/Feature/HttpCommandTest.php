@@ -12,6 +12,24 @@ it('generates the command', function (...$scenarios): void {
     }
 })->with('scenarios');
 
+it('generates a command with stringable object', function (): void {
+    $object = new class
+    {
+        public function __toString(): string
+        {
+            return 'Chris';
+        }
+    };
+
+    $output = HttpCommand::get('http://localhost')
+        ->form(['name' => $object])
+        ->toCurl();
+
+    $name = (string) $object;
+
+    expect($output)->toContain('GET', 'http://localhost', "--data-urlencode 'name=$name'");
+});
+
 it('creates a command with an empty URL', function (): void {
     $output = HttpCommand::get()->toCurl();
     expect($output)->toContain('GET');

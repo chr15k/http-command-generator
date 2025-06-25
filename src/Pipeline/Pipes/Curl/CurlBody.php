@@ -48,25 +48,14 @@ final readonly class CurlBody implements Pipe
 
     private function getFormUrlEncodedBody(RequestData $data): string
     {
-        $formData = $data->body?->getContent() ?? '';
-
-        $decoded = json_decode($formData, true);
-
-        if (! is_array($decoded) || $decoded === []) {
-            return '';
-        }
-
         $return = [];
-        foreach ($decoded as $key => $values) {
-            if (! is_array($values)) {
-                $values = [$values];
-            }
-            foreach ($values as $value) {
-                if (Type::isStringCastable($value)) {
+        foreach ($data->body?->data ?? [] as $key => $values) {
+            if (Type::isStringable($key)) {
+                foreach (Type::normalizeToStringableArray($values) as $value) {
                     $return[] = sprintf(
                         "%s--data-urlencode '%s=%s'",
                         $data->separator(),
-                        rawurlencode($key),
+                        rawurlencode((string) $key),
                         rawurlencode((string) $value)
                     );
                 }
@@ -78,25 +67,14 @@ final readonly class CurlBody implements Pipe
 
     private function getMultiPartFormData(RequestData $data): string
     {
-        $formData = $data->body?->getContent() ?? '';
-
-        $decoded = json_decode($formData, true);
-
-        if (! is_array($decoded) || $decoded === []) {
-            return '';
-        }
-
         $return = [];
-        foreach ($decoded as $key => $values) {
-            if (! is_array($values)) {
-                $values = [$values];
-            }
-            foreach ($values as $value) {
-                if (Type::isStringCastable($value)) {
+        foreach ($data->body?->data ?? [] as $key => $values) {
+            if (Type::isStringable($key)) {
+                foreach (Type::normalizeToStringableArray($values) as $value) {
                     $return[] = sprintf(
                         "%s--form '%s=%s'",
                         $data->separator(),
-                        $key,
+                        (string) $key,
                         (string) $value
                     );
                 }

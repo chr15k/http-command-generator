@@ -681,4 +681,74 @@ dataset('scenarios', [
             'wget' => "wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: application/x-www-form-urlencoded' --body-data 'test=123&test=124&key1=value2&key2=value2&key3=' 'https://example.com/api'",
         ],
     ],
+
+    'request with multi value form keys with empty values' => [
+        'method' => 'POST',
+        'url' => 'https://example.com/api',
+        'body' => [
+            'type' => 'form',
+            'data' => [
+                'test' => ['123', '', '124'],
+                'key1' => ['value1' => '', 'value2'],
+                'key2' => '',
+            ],
+        ],
+        'expected' => [
+            'curl' => "curl --location --request POST 'https://example.com/api' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'test=123' --data-urlencode 'test=' --data-urlencode 'test=124' --data-urlencode 'key1=' --data-urlencode 'key1=value2' --data-urlencode 'key2='",
+            'wget' => "wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: application/x-www-form-urlencoded' --body-data 'test=123&test=&test=124&key1=&key1=value2&key2=' 'https://example.com/api'",
+        ],
+    ],
+
+    'request with multi value form keys with numeric keys' => [
+        'method' => 'POST',
+        'url' => 'https://example.com/api',
+        'body' => [
+            'type' => 'form',
+            'data' => [
+                '1' => 'value1',
+                '2' => 'value2',
+                '3' => 'value3',
+            ],
+        ],
+        'expected' => [
+            'curl' => "curl --location --request POST 'https://example.com/api' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode '1=value1' --data-urlencode '2=value2' --data-urlencode '3=value3'",
+            'wget' => "wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: application/x-www-form-urlencoded' --body-data '1=value1&2=value2&3=value3' 'https://example.com/api'",
+        ],
+    ],
+
+    'request with non-scalar key will be filtered out' => [
+        'method' => 'POST',
+        'url' => 'https://example.com/api',
+        'body' => [
+            'type' => 'form',
+            'data' => [
+                'key1' => ['value1', 'value2'],
+                'key2' => ['value3', 123],
+                'key3' => ['value4', null],
+                'key4' => ['value5', []],
+                'key5' => [new stdClass],
+            ],
+        ],
+        'expected' => [
+            'curl' => "curl --location --request POST 'https://example.com/api' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'key1=value1' --data-urlencode 'key1=value2' --data-urlencode 'key2=value3' --data-urlencode 'key2=123' --data-urlencode 'key3=value4' --data-urlencode 'key3=' --data-urlencode 'key4=value5'",
+            'wget' => "wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: application/x-www-form-urlencoded' --body-data 'key1=value1&key1=value2&key2=value3&key2=123&key3=value4&key3=&key4=value5' 'https://example.com/api'",
+        ],
+    ],
+
+    'request with null and empty form values' => [
+        'method' => 'POST',
+        'url' => 'https://example.com/api',
+        'body' => [
+            'type' => 'form',
+            'data' => [
+                'key1' => null,
+                'key2' => '',
+                'key3' => 'value3',
+            ],
+        ],
+        'expected' => [
+            'curl' => "curl --location --request POST 'https://example.com/api' --header 'Content-Type: application/x-www-form-urlencoded' --data-urlencode 'key1=' --data-urlencode 'key2=' --data-urlencode 'key3=value3'",
+            'wget' => "wget --no-check-certificate --quiet --method POST --timeout=0 --header 'Content-Type: application/x-www-form-urlencoded' --body-data 'key1=&key2=&key3=value3' 'https://example.com/api'",
+        ],
+    ],
 ]);

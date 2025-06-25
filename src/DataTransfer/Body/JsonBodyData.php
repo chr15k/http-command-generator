@@ -17,7 +17,7 @@ final class JsonBodyData implements BodyDataTransfer
      * @param  array<string, mixed>|string  $data
      */
     public function __construct(
-        private readonly array|string $data = '',
+        public readonly array|string $data = '',
         bool $preserveAsRaw = false,
         private readonly int $encodeOptions = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
     ) {
