@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.1.10] - 2025-06-25
+### Fixed
+- Fix error relating to numeric key values & improve type handling
+
 ## [v0.1.9] - 2025-06-24
 ### Fixed
 - Fix error caused by nested arrays in pipeline
